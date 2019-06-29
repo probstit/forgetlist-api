@@ -1,0 +1,12 @@
+{
+  "compileOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "noImplicitAny": false,
+    "sourceMap": true,
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "files": ["./index.d.ts"]
+}
