@@ -41,14 +41,14 @@ var appMail = "alex.nodemailer28@gmail.com";
 var Mailer = /** @class */ (function () {
     function Mailer() {
         this.transporter = nodeMailer.createTransport({
-            service: "gmail",
+            service: 'gmail',
             auth: {
                 user: appMail,
                 pass: secret_1.mailPw
             }
         });
     }
-    Mailer.prototype.send = function (email, url, subject, text) {
+    Mailer.prototype.send = function (email, subject, text) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {

@@ -62,13 +62,14 @@ var UserService = /** @class */ (function () {
                         })];
                     case 1:
                         found = _a.sent();
-                        if (found) {
-                            res
-                                .json({
-                                message: "E-mail is already being used!"
-                            })
-                                .end();
-                        }
+                        if (!found) return [3 /*break*/, 2];
+                        res
+                            .json({
+                            message: "E-mail is already being used!"
+                        })
+                            .end();
+                        return [3 /*break*/, 6];
+                    case 2:
                         newUser = new user_1.User({
                             _id: new mongodb_1.ObjectID(),
                             firstName: userData.firstName,
@@ -81,7 +82,7 @@ var UserService = /** @class */ (function () {
                         newUser.hashPW(newUser.password);
                         // Add user info into db.
                         return [4 /*yield*/, this.usersRepo.insertOne(newUser)];
-                    case 2:
+                    case 3:
                         // Add user info into db.
                         _a.sent();
                         code = new randomCode_1.RandomCode({
@@ -89,11 +90,11 @@ var UserService = /** @class */ (function () {
                             forId: newUser._id
                         });
                         return [4 /*yield*/, this.codesRepo.insertOne(code)];
-                    case 3:
+                    case 4:
                         _a.sent();
                         url = "http://localhost:8000/api/v1.0/users/confirm?code=" + code._id;
-                        return [4 /*yield*/, this.mailer.send(newUser.email, url, "Account confirmation", "Please follow this link " + url + " to activate your account.")];
-                    case 4:
+                        return [4 /*yield*/, this.mailer.send(newUser.email, "Account confirmation", "Please follow this link " + url + " to activate your account.")];
+                    case 5:
                         _a.sent();
                         res
                             .json({
@@ -101,6 +102,7 @@ var UserService = /** @class */ (function () {
                         })
                             .end();
                         return [2 /*return*/, newUser];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -177,6 +179,7 @@ var UserService = /** @class */ (function () {
                         passwordMatch = user.checkPassword(userData.password);
                         if (!passwordMatch) {
                             res
+                                .status(403)
                                 .json({
                                 message: "Wrong password!"
                             })
@@ -274,7 +277,7 @@ var UserService = /** @class */ (function () {
                     case 2:
                         _a.sent();
                         url = "http://localhost:8000/api/v1.0/users/reset-password?token=" + code._id;
-                        return [4 /*yield*/, this.mailer.send(user.email, url, "Password recovery", "Please follow this link " + url + " to reset your password.")];
+                        return [4 /*yield*/, this.mailer.send(user.email, "Password recovery", "Please follow this link " + url + " to reset your password.")];
                     case 3:
                         _a.sent();
                         res
@@ -302,7 +305,7 @@ var UserService = /** @class */ (function () {
                             res
                                 .status(403)
                                 .json({
-                                message: 'You are not authorized to perform this action.'
+                                message: "You are not authorized to perform this action."
                             })
                                 .end();
                         }
@@ -315,7 +318,7 @@ var UserService = /** @class */ (function () {
                             res
                                 .status(500)
                                 .json({
-                                message: 'There has been an error on our side, please contact support team.'
+                                message: "There has been an error on our side, please contact support team."
                             })
                                 .end();
                         }
@@ -334,7 +337,7 @@ var UserService = /** @class */ (function () {
                         res
                             .status(200)
                             .json({
-                            message: 'Password has been successfully updated.'
+                            message: "Password has been successfully updated."
                         })
                             .end();
                         return [2 /*return*/];

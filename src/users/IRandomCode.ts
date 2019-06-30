@@ -1,6 +1,6 @@
-import { ObjectID } from 'mongodb';
+import { ObjectID } from "mongodb";
 
 export interface IRandomCode {
-  _id: ObjectID,
-  forId: ObjectID
+  _id: ObjectID;
+  forId: ObjectID;
 }

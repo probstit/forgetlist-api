@@ -45,46 +45,45 @@ export class UserService {
           message: "E-mail is already being used!"
         })
         .end();
+    } else {
+      // If the e-mail does not exist, create a new user and add it to the db.
+      let newUser: User = new User({
+        _id: new ObjectID(),
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: userData.password,
+        active: false
+      });
+
+      // Encrypt user password.
+      newUser.hashPW(newUser.password);
+      // Add user info into db.
+      await this.usersRepo.insertOne(newUser);
+
+      // Generate confirmation code and add it to the db.
+      let code = new RandomCode({
+        _id: new ObjectID(),
+        forId: newUser._id
+      });
+      await this.codesRepo.insertOne(code);
+
+      // Send e-mail for user confirmation.
+      let url = `http://localhost:8000/api/v1.0/users/confirm?code=${code._id}`;
+      await this.mailer.send(
+        newUser.email,
+        "Account confirmation",
+        `Please follow this link ${url} to activate your account.`
+      );
+
+      res
+        .json({
+          message: `A confirmation link has been sent to ${newUser.email}`
+        })
+        .end();
+        
+      return newUser;
     }
-
-    // If the e-mail does not exist, create a new user and add it to the db.
-    let newUser: User = new User({
-      _id: new ObjectID(),
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      email: userData.email,
-      password: userData.password,
-      active: false
-    });
-
-    // Encrypt user password.
-    newUser.hashPW(newUser.password);
-    // Add user info into db.
-    await this.usersRepo.insertOne(newUser);
-
-    // Generate confirmation code and add it to the db.
-    let code = new RandomCode({
-      _id: new ObjectID(),
-      forId: newUser._id
-    });
-    await this.codesRepo.insertOne(code);
-
-    // Send the confirmation e-mail.
-    let url = `http://localhost:8000/api/v1.0/users/confirm?code=${code._id}`;
-    await this.mailer.send(
-      newUser.email,
-      url,
-      "Account confirmation",
-      `Please follow this link ${url} to activate your account.`
-    );
-
-    res
-      .json({
-        message: `A confirmation link has been sent to ${newUser.email}`
-      })
-      .end();
-
-    return newUser;
   }
 
   public async confirmAccount(
@@ -158,6 +157,7 @@ export class UserService {
     let passwordMatch = user.checkPassword(userData.password);
     if (!passwordMatch) {
       res
+        .status(403)
         .json({
           message: "Wrong password!"
         })
@@ -260,7 +260,6 @@ export class UserService {
     }`;
     await this.mailer.send(
       user.email,
-      url,
       "Password recovery",
       `Please follow this link ${url} to reset your password.`
     );
@@ -279,7 +278,6 @@ export class UserService {
     token: ObjectID,
     res: express.Response
   ): Promise<void> {
-
     // Find the token.
     let foundToken = await this.passRecoverCodesRepo.findOne({
       _id: new ObjectID(token)
@@ -289,7 +287,7 @@ export class UserService {
       res
         .status(403)
         .json({
-          message: 'You are not authorized to perform this action.'
+          message: "You are not authorized to perform this action."
         })
         .end();
     }
@@ -297,13 +295,14 @@ export class UserService {
     // Find the user.
     let userData = await this.usersRepo.findOne({
       _id: foundToken.forId
-    })
+    });
 
     if (!userData) {
       res
         .status(500)
         .json({
-          message: 'There has been an error on our side, please contact support team.'
+          message:
+            "There has been an error on our side, please contact support team."
         })
         .end();
     }
@@ -326,7 +325,7 @@ export class UserService {
     res
       .status(200)
       .json({
-        message: 'Password has been successfully updated.'
+        message: "Password has been successfully updated."
       })
       .end();
   }

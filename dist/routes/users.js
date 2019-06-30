@@ -43,8 +43,8 @@ var mailer_1 = require("../mailer/mailer");
 var router = express.Router();
 function userRoutes(usersRepo, codesRepo, passRecoverCodesRepo) {
     var _this = this;
-    var mailSerivce = new mailer_1.Mailer();
-    var userService = new userService_1.UserService(mailSerivce, usersRepo, codesRepo, passRecoverCodesRepo, secret_1.key);
+    var mailService = new mailer_1.Mailer();
+    var userService = new userService_1.UserService(mailService, usersRepo, codesRepo, passRecoverCodesRepo, secret_1.key);
     // Register route
     router.post("/users/register", function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
         var err_1;

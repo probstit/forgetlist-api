@@ -1,7 +1,7 @@
-import { ObjectID } from 'mongodb';
-import * as bcrypt from 'bcrypt';
+import { ObjectID } from "mongodb";
+import * as bcrypt from "bcrypt";
 
-import { IUser } from './IUser';
+import { IUser } from "./IUser";
 
 export class User implements IUser {
   public _id: ObjectID;
@@ -9,7 +9,7 @@ export class User implements IUser {
   public lastName: string;
   public email: string;
   public password: string;
-  public active: boolean
+  public active: boolean;
 
   constructor(data: IUser) {
     this._id = data._id;
@@ -24,7 +24,7 @@ export class User implements IUser {
     this.password = bcrypt.hashSync(pw, 12);
   }
 
-  public checkPassword(pw: string) : boolean {
+  public checkPassword(pw: string): boolean {
     return bcrypt.compareSync(pw, this.password);
   }
 

@@ -15,9 +15,9 @@ export function userRoutes(
   codesRepo,
   passRecoverCodesRepo
 ): express.Router {
-  const mailSerivce: Mailer = new Mailer();
+  const mailService: Mailer = new Mailer();
   const userService: UserService = new UserService(
-    mailSerivce,
+    mailService,
     usersRepo,
     codesRepo,
     passRecoverCodesRepo,

@@ -2,7 +2,7 @@ require("dotenv").config();
 import * as express from "express";
 import * as MongoClient from "mongodb";
 import * as bodyParser from "body-parser";
-import * as cors from 'cors';
+import * as cors from "cors";
 
 // Routes.
 import { userRoutes } from "./routes/users";

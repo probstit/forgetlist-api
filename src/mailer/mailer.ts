@@ -8,7 +8,7 @@ export class Mailer {
 
   constructor() {
     this.transporter = nodeMailer.createTransport({
-      service: "gmail",
+      service: 'gmail',
       auth: {
         user: appMail,
         pass: mailPw
@@ -16,7 +16,7 @@ export class Mailer {
     });
   }
 
-  async send(email: string, url: string, subject: string, text: string) {
+  async send(email: string, subject: string, text: string) {
     await this.transporter.sendMail({
       from: appMail,
       to: email,

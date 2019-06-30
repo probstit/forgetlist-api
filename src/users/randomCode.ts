@@ -1,5 +1,5 @@
-import { IRandomCode } from './IRandomCode';
-import { ObjectID } from 'mongodb';
+import { IRandomCode } from "./IRandomCode";
+import { ObjectID } from "mongodb";
 
 export class RandomCode implements IRandomCode {
   public _id: ObjectID;
