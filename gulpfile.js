@@ -9,11 +9,6 @@ gulp.task("compile-ts", () => {
     .pipe(gulp.dest("dist"));
 });
 
-// gulp.task('copyENV', () => {
-//   gulp.src('./.env')
-//     .pipe(gulp.dest('./dist/'));
-// })
-
 gulp.task('build', () => {
   gulp.watch('src/**/*.ts', gulp.series("compile-ts"));
 });

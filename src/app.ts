@@ -1,18 +1,16 @@
-require("dotenv").config();
 import * as express from "express";
 import * as MongoClient from "mongodb";
 import * as bodyParser from "body-parser";
 import * as cors from "cors";
 
-// Routes.
+// Import routes.
 import { userRoutes } from "./routes/users";
+// Import db details from config.json.
+import { dbURL, dbName, appPort } from "./secret/secret";
 
 const app = express();
-const PORT: number = 8000;
-const dbName: string = "Shopify";
-const url: string = "mongodb://localhost:27017";
 
-MongoClient.connect(url, { useNewUrlParser: true })
+MongoClient.connect(dbURL, { useNewUrlParser: true })
   .then(mongoClient => {
     return mongoClient.db(dbName);
   })
@@ -31,6 +29,6 @@ MongoClient.connect(url, { useNewUrlParser: true })
     app.use(cors());
     app.use("/api/v1.0", _userRoutes);
 
-    app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+    app.listen(appPort, () => console.log(`Listening on port ${appPort}`));
   })
   .catch(err => console.log(err));

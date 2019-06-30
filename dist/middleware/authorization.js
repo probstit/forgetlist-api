@@ -15,7 +15,7 @@ function isAuthorized(req, res, next) {
         if (!decoded) {
             res.status(403).json({ message: "Access denied!" });
         }
-        jwt.verify(token, secret_1.key, function (err, decodedToken) {
+        jwt.verify(token, secret_1.jwtSecret, function (err, decodedToken) {
             if (err) {
                 res.status(403).json({
                     message: "Access denied!"

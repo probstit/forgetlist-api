@@ -3,11 +3,11 @@ import { ObjectID } from "mongodb";
 
 import { isAuthorized } from "../middleware/authorization";
 import { UserService } from "../users/userService";
-import { key } from "../secret/secret";
+import { jwtSecret } from "../secret/secret";
 import { Mailer } from "../mailer/mailer";
 
 const router = express.Router();
-
+// Need to change this line and fix the problem properly.
 type RequestWithUser = { user?: { _id: ObjectID } } & express.Request;
 
 export function userRoutes(
@@ -21,7 +21,7 @@ export function userRoutes(
     usersRepo,
     codesRepo,
     passRecoverCodesRepo,
-    key
+    jwtSecret
   );
 
   // Register route

@@ -1,19 +1,17 @@
 "use strict";
 exports.__esModule = true;
-require("dotenv").config();
 var express = require("express");
 var MongoClient = require("mongodb");
 var bodyParser = require("body-parser");
 var cors = require("cors");
-// Routes.
+// Import routes.
 var users_1 = require("./routes/users");
+// Import db details from config.json.
+var secret_1 = require("./secret/secret");
 var app = express();
-var PORT = 8000;
-var dbName = "Shopify";
-var url = "mongodb://localhost:27017";
-MongoClient.connect(url, { useNewUrlParser: true })
+MongoClient.connect(secret_1.dbURL, { useNewUrlParser: true })
     .then(function (mongoClient) {
-    return mongoClient.db(dbName);
+    return mongoClient.db(secret_1.dbName);
 })
     .then(function (db) {
     var usersCollection = db.collection("users");
@@ -23,5 +21,5 @@ MongoClient.connect(url, { useNewUrlParser: true })
     app.use(bodyParser.json());
     app.use(cors());
     app.use("/api/v1.0", _userRoutes);
-    app.listen(PORT, function () { return console.log("Listening on port " + PORT); });
+    app.listen(secret_1.appPort, function () { return console.log("Listening on port " + secret_1.appPort); });
 })["catch"](function (err) { return console.log(err); });

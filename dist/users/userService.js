@@ -39,6 +39,7 @@ var jwt = require("jsonwebtoken");
 var mongodb_1 = require("mongodb");
 var user_1 = require("./user");
 var randomCode_1 = require("./randomCode");
+var secret_1 = require("../secret/secret");
 var UserService = /** @class */ (function () {
     function UserService(_mailer, _usersRepo, _codesRepo, _passRecoverCodesRepo, _jwtSecret) {
         this._mailer = _mailer;
@@ -92,13 +93,13 @@ var UserService = /** @class */ (function () {
                         return [4 /*yield*/, this.codesRepo.insertOne(code)];
                     case 4:
                         _a.sent();
-                        url = "http://localhost:8000/api/v1.0/users/confirm?code=" + code._id;
+                        url = secret_1.hostname + "api/v1.0/users/confirm?code=" + code._id;
                         return [4 /*yield*/, this.mailer.send(newUser.email, "Account confirmation", "Please follow this link " + url + " to activate your account.")];
                     case 5:
                         _a.sent();
                         res
                             .json({
-                            message: "A confirmation link has been sent to " + newUser.email
+                            message: "A confirmation link has been sent to " + newUser.email + "."
                         })
                             .end();
                         return [2 /*return*/, newUser];
@@ -276,14 +277,14 @@ var UserService = /** @class */ (function () {
                         return [4 /*yield*/, this.passRecoverCodesRepo.insertOne(code)];
                     case 2:
                         _a.sent();
-                        url = "http://localhost:8000/api/v1.0/users/reset-password?token=" + code._id;
+                        url = secret_1.hostname + "api/v1.0/users/reset-password?token=" + code._id;
                         return [4 /*yield*/, this.mailer.send(user.email, "Password recovery", "Please follow this link " + url + " to reset your password.")];
                     case 3:
                         _a.sent();
                         res
                             .status(200)
                             .json({
-                            message: "An e-mail containing further information has been sent to your e-mail address."
+                            message: "An e-mail containing further informations has been sent to your e-mail address."
                         })
                             .end();
                         return [2 /*return*/];

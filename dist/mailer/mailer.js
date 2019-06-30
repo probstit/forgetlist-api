@@ -37,13 +37,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 exports.__esModule = true;
 var nodeMailer = require("nodemailer");
 var secret_1 = require("../secret/secret");
-var appMail = "alex.nodemailer28@gmail.com";
 var Mailer = /** @class */ (function () {
     function Mailer() {
         this.transporter = nodeMailer.createTransport({
-            service: 'gmail',
+            host: secret_1.smtpHost,
+            port: secret_1.port,
+            secure: secret_1.isSecure,
+            service: secret_1.mailService,
             auth: {
-                user: appMail,
+                user: secret_1.appMail,
                 pass: secret_1.mailPw
             }
         });
@@ -53,7 +55,7 @@ var Mailer = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.transporter.sendMail({
-                            from: appMail,
+                            from: secret_1.appMail,
                             to: email,
                             subject: subject,
                             text: text

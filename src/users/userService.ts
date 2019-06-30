@@ -1,6 +1,5 @@
 import * as jwt from "jsonwebtoken";
 import * as express from "express";
-import * as bcrypt from "bcrypt";
 import { Collection, ObjectID } from "mongodb";
 
 import { Mailer } from "../mailer/mailer";
@@ -8,6 +7,7 @@ import { IUser } from "../users/IUser";
 import { User } from "./user";
 import { IRandomCode } from "../users/IRandomCode";
 import { RandomCode } from "./randomCode";
+import { hostname } from "../secret/secret";
 
 export class UserService {
   private mailer: Mailer;
@@ -69,7 +69,7 @@ export class UserService {
       await this.codesRepo.insertOne(code);
 
       // Send e-mail for user confirmation.
-      let url = `http://localhost:8000/api/v1.0/users/confirm?code=${code._id}`;
+      let url = `${hostname}api/v1.0/users/confirm?code=${code._id}`;
       await this.mailer.send(
         newUser.email,
         "Account confirmation",
@@ -78,10 +78,10 @@ export class UserService {
 
       res
         .json({
-          message: `A confirmation link has been sent to ${newUser.email}`
+          message: `A confirmation link has been sent to ${newUser.email}.`
         })
         .end();
-        
+
       return newUser;
     }
   }
@@ -255,9 +255,7 @@ export class UserService {
     await this.passRecoverCodesRepo.insertOne(code);
 
     // Send e-mail regarding password reset.
-    let url = `http://localhost:8000/api/v1.0/users/reset-password?token=${
-      code._id
-    }`;
+    let url = `${hostname}api/v1.0/users/reset-password?token=${code._id}`;
     await this.mailer.send(
       user.email,
       "Password recovery",
@@ -268,7 +266,7 @@ export class UserService {
       .status(200)
       .json({
         message:
-          "An e-mail containing further information has been sent to your e-mail address."
+          "An e-mail containing further informations has been sent to your e-mail address."
       })
       .end();
   }

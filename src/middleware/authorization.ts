@@ -1,7 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import * as express from "express";
 import { ObjectID } from "mongodb";
-import { key } from "../secret/secret";
+import { jwtSecret } from "../secret/secret";
 
 export function isAuthorized(
   req: express.Request,
@@ -22,7 +22,7 @@ export function isAuthorized(
       res.status(403).json({ message: "Access denied!" });
     }
 
-    jwt.verify(token, key, (err, decodedToken) => {
+    jwt.verify(token, jwtSecret, (err, decodedToken) => {
       if (err) {
         res.status(403).json({
           message: "Access denied!"

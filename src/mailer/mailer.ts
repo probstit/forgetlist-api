@@ -1,14 +1,22 @@
 import * as nodeMailer from "nodemailer";
-import { mailPw } from "../secret/secret";
-
-const appMail: string = "alex.nodemailer28@gmail.com";
+import {
+  smtpHost,
+  port,
+  isSecure,
+  mailService,
+  appMail,
+  mailPw
+} from "../secret/secret";
 
 export class Mailer {
   private transporter: nodeMailer.Transporter;
 
   constructor() {
     this.transporter = nodeMailer.createTransport({
-      service: 'gmail',
+      host: smtpHost,
+      port: port,
+      secure: isSecure,
+      service: mailService,
       auth: {
         user: appMail,
         pass: mailPw
