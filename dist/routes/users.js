@@ -38,29 +38,34 @@ exports.__esModule = true;
 var express = require("express");
 var authorization_1 = require("../middleware/authorization");
 var userService_1 = require("../users/userService");
+var friendListService_1 = require("../friends/friendListService");
 var secret_1 = require("../secret/secret");
 var mailer_1 = require("../mailer/mailer");
-var router = express.Router();
-function userRoutes(usersRepo, codesRepo, passRecoverCodesRepo) {
+function userRoutes(usersRepo, codesRepo, passRecoverCodesRepo, friendsListRepo) {
     var _this = this;
+    var router = express.Router();
     var mailService = new mailer_1.Mailer();
     var userService = new userService_1.UserService(mailService, usersRepo, codesRepo, passRecoverCodesRepo, secret_1.jwtSecret);
-    // Register route
+    var friendListService = new friendListService_1.FriendListService(friendsListRepo);
+    // Register route.
     router.post("/users/register", function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
-        var err_1;
+        var newUser, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _a.trys.push([0, 3, , 4]);
                     return [4 /*yield*/, userService.registerAccount(req.body, res)];
                 case 1:
-                    _a.sent();
-                    return [3 /*break*/, 3];
+                    newUser = _a.sent();
+                    return [4 /*yield*/, friendListService.registerFriendList(newUser._id)];
                 case 2:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
                     err_1 = _a.sent();
                     next(err_1);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
         });
     }); });

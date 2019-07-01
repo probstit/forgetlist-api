@@ -1,20 +1,22 @@
 import * as express from "express";
-import { ObjectID } from "mongodb";
+import { Collection } from "mongodb";
 
 import { isAuthorized } from "../middleware/authorization";
+import { IUser } from "../users/IUser";
+import { IRandomCode } from "../users/IRandomCode";
 import { UserService } from "../users/userService";
+import { FriendList } from "../friends/friendList";
+import { FriendListService } from "../friends/friendListService";
 import { jwtSecret } from "../secret/secret";
 import { Mailer } from "../mailer/mailer";
 
-const router = express.Router();
-// Need to change this line and fix the problem properly.
-type RequestWithUser = { user?: { _id: ObjectID } } & express.Request;
-
 export function userRoutes(
-  usersRepo,
-  codesRepo,
-  passRecoverCodesRepo
+  usersRepo: Collection<IUser>,
+  codesRepo: Collection<IRandomCode>,
+  passRecoverCodesRepo: Collection<IRandomCode>,
+  friendsListRepo: Collection<FriendList>
 ): express.Router {
+  const router = express.Router();
   const mailService: Mailer = new Mailer();
   const userService: UserService = new UserService(
     mailService,
@@ -23,17 +25,21 @@ export function userRoutes(
     passRecoverCodesRepo,
     jwtSecret
   );
+  const friendListService: FriendListService = new FriendListService(
+    friendsListRepo
+  );
 
-  // Register route
+  // Register route.
   router.post(
     "/users/register",
     async (
-      req: RequestWithUser,
+      req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
       try {
-        await userService.registerAccount(req.body, res);
+        let newUser = await userService.registerAccount(req.body, res);
+        await friendListService.registerFriendList(newUser._id);
       } catch (err) {
         next(err);
       }
@@ -44,7 +50,7 @@ export function userRoutes(
   router.get(
     "/users/confirm",
     async (
-      req: RequestWithUser,
+      req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
@@ -60,7 +66,7 @@ export function userRoutes(
   router.post(
     "/users/login",
     async (
-      req: RequestWithUser,
+      req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
@@ -77,12 +83,12 @@ export function userRoutes(
     "/users/change-password",
     isAuthorized,
     async (
-      req: RequestWithUser,
+      req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
       try {
-        await userService.changePassword(req.user._id, req.body, res);
+        await userService.changePassword((req as any).user._id, req.body, res);
         res.end();
       } catch (err) {
         next(err);
@@ -94,7 +100,7 @@ export function userRoutes(
   router.post(
     "/users/forgot-password",
     async (
-      req: RequestWithUser,
+      req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
@@ -110,7 +116,7 @@ export function userRoutes(
   router.put(
     "/users/reset-password",
     async (
-      req: RequestWithUser,
+      req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
