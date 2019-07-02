@@ -82,8 +82,15 @@ export function socialRoutes(
     ) => {
       try {
         let userID = (req as any).user._id;
-        let friendList = await friendListService.getFriendList(userID, res);
-        res.json({ friendList });
+        let friendList = await friendListService.getFriendList(userID);
+
+        if (!friendList) {
+          res.status(404).json({
+            message: "There has been an error on our side."
+          });
+        } else {
+          res.json({ friendList });
+        }
       } catch (err) {
         next(err);
       }

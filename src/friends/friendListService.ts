@@ -17,7 +17,7 @@ export class FriendListService {
     // Create a new instance of friend list.
     const friendList = new FriendList({
       _id: new ObjectID(),
-      forID: userID,
+      userID: userID,
       friendIDs: []
     });
 
@@ -33,7 +33,7 @@ export class FriendListService {
   ): Promise<void> {
     // Find user's friend list.
     let foundList = await this.friendsListRepo.findOne({
-      forID: new ObjectID(userID)
+      userID: new ObjectID(userID)
     });
 
     // Update user's friend list.
@@ -44,7 +44,7 @@ export class FriendListService {
     } else {
       await this.friendsListRepo.updateOne(
         {
-          forID: userID
+          userID
         },
         {
           $addToSet: {
@@ -63,7 +63,7 @@ export class FriendListService {
   ): Promise<void> {
     // Find user's friend list.
     let foundList = await this.friendsListRepo.findOne({
-      forID: userID
+      userID: userID
     });
 
     if (!foundList) {
@@ -74,7 +74,7 @@ export class FriendListService {
       // Update user's friend list.
       await this.friendsListRepo.updateOne(
         {
-          forID: userID
+          userID
         },
         {
           $pull: {
@@ -86,19 +86,10 @@ export class FriendListService {
   }
 
   // Fetch the friend list for a user.
-  public async getFriendList(
-    userID: ObjectID,
-    res: express.Response
-  ): Promise<FriendList> {
+  public async getFriendList(userID: ObjectID): Promise<FriendList> {
     let foundList = await this.friendsListRepo.findOne({
-      forID: new ObjectID(userID)
+      userID: new ObjectID(userID)
     });
-
-    if (!foundList) {
-      res.status(404).json({
-        message: "There has been an error on our side."
-      });
-    }
 
     return foundList;
   }

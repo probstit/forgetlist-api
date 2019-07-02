@@ -53,7 +53,7 @@ var FriendListService = /** @class */ (function () {
                     case 0:
                         friendList = new friendList_1.FriendList({
                             _id: new mongodb_1.ObjectID(),
-                            forID: userID,
+                            userID: userID,
                             friendIDs: []
                         });
                         // Add it to the db.
@@ -73,7 +73,7 @@ var FriendListService = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.friendsListRepo.findOne({
-                            forID: new mongodb_1.ObjectID(userID)
+                            userID: new mongodb_1.ObjectID(userID)
                         })];
                     case 1:
                         foundList = _a.sent();
@@ -83,7 +83,7 @@ var FriendListService = /** @class */ (function () {
                         });
                         return [3 /*break*/, 4];
                     case 2: return [4 /*yield*/, this.friendsListRepo.updateOne({
-                            forID: userID
+                            userID: userID
                         }, {
                             $addToSet: {
                                 friendIDs: friendID
@@ -104,7 +104,7 @@ var FriendListService = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.friendsListRepo.findOne({
-                            forID: userID
+                            userID: userID
                         })];
                     case 1:
                         foundList = _a.sent();
@@ -116,7 +116,7 @@ var FriendListService = /** @class */ (function () {
                     case 2: 
                     // Update user's friend list.
                     return [4 /*yield*/, this.friendsListRepo.updateOne({
-                            forID: userID
+                            userID: userID
                         }, {
                             $pull: {
                                 friendIDs: friendID
@@ -132,21 +132,16 @@ var FriendListService = /** @class */ (function () {
         });
     };
     // Fetch the friend list for a user.
-    FriendListService.prototype.getFriendList = function (userID, res) {
+    FriendListService.prototype.getFriendList = function (userID) {
         return __awaiter(this, void 0, void 0, function () {
             var foundList;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.friendsListRepo.findOne({
-                            forID: new mongodb_1.ObjectID(userID)
+                            userID: new mongodb_1.ObjectID(userID)
                         })];
                     case 1:
                         foundList = _a.sent();
-                        if (!foundList) {
-                            res.status(404).json({
-                                message: "There has been an error on our side."
-                            });
-                        }
                         return [2 /*return*/, foundList];
                 }
             });

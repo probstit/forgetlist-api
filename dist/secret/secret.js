@@ -12,6 +12,9 @@ var appPort = nconf.get("port");
 exports.appPort = appPort;
 var hostname = nconf.get("hostname");
 exports.hostname = hostname;
+// API Version.
+var apiVers = nconf.get("api:v");
+exports.apiVers = apiVers;
 // Node-mailer options.
 var smtpHost = nconf.get("email:host");
 exports.smtpHost = smtpHost;

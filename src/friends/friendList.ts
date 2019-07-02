@@ -2,12 +2,12 @@ import { ObjectID } from "mongodb";
 
 export class FriendList {
   _id: ObjectID;
-  forID: ObjectID;
+  userID: ObjectID;
   friendIDs: ObjectID[];
 
   constructor(data: FriendList) {
     this._id = data._id;
-    this.forID = data.forID;
+    this.userID = data.userID;
     this.friendIDs = data.friendIDs;
   }
 }

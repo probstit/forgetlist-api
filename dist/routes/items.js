@@ -36,95 +36,83 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var express = require("express");
+var mongodb_1 = require("mongodb");
 var authorization_1 = require("../middleware/authorization");
-var friendListService_1 = require("../friends/friendListService");
-function socialRoutes(friendListRepo, usersRepo) {
+var item_1 = require("../items/item");
+var itemService_1 = require("../items/itemService");
+function itemRoutes(itemsRepo) {
     var _this = this;
     var router = express.Router();
-    var friendListService = new friendListService_1.FriendListService(friendListRepo);
-    // Route for adding a friend.
-    router.post("/social/add-friend", authorization_1.isAuthorized, function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
-        var userID, friendEmail, friend, err_1;
+    var itemService = new itemService_1.ItemService(itemsRepo);
+    // Route for adding an item.
+    router.post("/items/add-item", authorization_1.isAuthorized, function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+        var newItem, addedItem, err_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 4, , 5]);
-                    userID = req.user._id;
-                    friendEmail = req.body.email;
-                    return [4 /*yield*/, usersRepo.findOne({
-                            email: friendEmail
-                        })];
-                case 1:
-                    friend = _a.sent();
-                    return [4 /*yield*/, friendListService.addUserToFriendList(userID, friend._id, res)];
-                case 2:
-                    _a.sent();
-                    return [4 /*yield*/, friendListService.addUserToFriendList(friend._id, userID, res)];
-                case 3:
-                    _a.sent();
-                    res.json({
-                        message: "Successfully added friends."
+                    _a.trys.push([0, 2, , 3]);
+                    newItem = new item_1.Item({
+                        _id: new mongodb_1.ObjectID(),
+                        userID: req.user._id,
+                        name: req.body.name,
+                        quantity: req.body.quantity,
+                        isBought: false,
+                        isShared: false,
+                        sharedWith: []
                     });
-                    return [3 /*break*/, 5];
-                case 4:
+                    return [4 /*yield*/, itemService.addItem(newItem)];
+                case 1:
+                    addedItem = _a.sent();
+                    res.json({
+                        message: "Successfully added item.",
+                        addedItem: addedItem
+                    });
+                    return [3 /*break*/, 3];
+                case 2:
                     err_1 = _a.sent();
                     next(err_1);
-                    return [3 /*break*/, 5];
-                case 5: return [2 /*return*/];
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     }); });
-    // Route for removing a friend.
-    router["delete"]("/social/remove-friend", authorization_1.isAuthorized, function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
-        var userID, friendEmail, friend, err_2;
+    // Route for deleting and item.
+    router["delete"]("/items/delete-item/:id", authorization_1.isAuthorized, function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+        var deletedItem, err_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 4, , 5]);
-                    userID = req.user._id;
-                    friendEmail = req.body.email;
-                    return [4 /*yield*/, usersRepo.findOne({
-                            email: friendEmail
-                        })];
+                    _a.trys.push([0, 2, , 3]);
+                    return [4 /*yield*/, itemService.deleteItem(req.params.id, res)];
                 case 1:
-                    friend = _a.sent();
-                    return [4 /*yield*/, friendListService.removeUserFromFriendList(userID, friend._id, res)];
-                case 2:
-                    _a.sent();
-                    return [4 /*yield*/, friendListService.removeUserFromFriendList(friend._id, userID, res)];
-                case 3:
-                    _a.sent();
-                    res.json({
-                        message: "Successfully removed friends."
+                    deletedItem = _a.sent();
+                    res.status(200).json({
+                        message: "Item has been successfully removed.",
+                        deletedItem: deletedItem
                     });
-                    return [3 /*break*/, 5];
-                case 4:
+                    return [3 /*break*/, 3];
+                case 2:
                     err_2 = _a.sent();
                     next(err_2);
-                    return [3 /*break*/, 5];
-                case 5: return [2 /*return*/];
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     }); });
-    // Get a users friend list.
-    router.get("/social/friends", authorization_1.isAuthorized, function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
-        var userID, friendList, err_3;
+    // Route for getting the items for a user.
+    router.get("/items/get-items", authorization_1.isAuthorized, function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+        var userID, userItems, err_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 2, , 3]);
                     userID = req.user._id;
-                    return [4 /*yield*/, friendListService.getFriendList(userID)];
+                    return [4 /*yield*/, itemService.getItems(userID)];
                 case 1:
-                    friendList = _a.sent();
-                    if (!friendList) {
-                        res.status(404).json({
-                            message: "There has been an error on our side."
-                        });
-                    }
-                    else {
-                        res.json({ friendList: friendList });
-                    }
+                    userItems = _a.sent();
+                    res.json({
+                        items: userItems
+                    });
                     return [3 /*break*/, 3];
                 case 2:
                     err_3 = _a.sent();
@@ -136,4 +124,4 @@ function socialRoutes(friendListRepo, usersRepo) {
     }); });
     return router;
 }
-exports.socialRoutes = socialRoutes;
+exports.itemRoutes = itemRoutes;

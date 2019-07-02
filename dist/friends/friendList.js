@@ -3,7 +3,7 @@ exports.__esModule = true;
 var FriendList = /** @class */ (function () {
     function FriendList(data) {
         this._id = data._id;
-        this.forID = data.forID;
+        this.userID = data.userID;
         this.friendIDs = data.friendIDs;
     }
     return FriendList;

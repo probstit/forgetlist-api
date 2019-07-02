@@ -8,6 +8,8 @@ const dbName: string = nconf.get("db:name");
 // APP Setup.
 const appPort: number = nconf.get("port");
 const hostname: string = nconf.get("hostname");
+// API Version.
+const apiVers: string = nconf.get("api:v");
 
 // Node-mailer options.
 const smtpHost: string = nconf.get("email:host");
@@ -25,6 +27,7 @@ export {
   dbName,
   appPort,
   hostname,
+  apiVers,
   smtpHost,
   port,
   isSecure,
