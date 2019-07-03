@@ -12,3 +12,5 @@ gulp.task("compile-ts", () => {
 gulp.task('build', () => {
   gulp.watch('src/**/*.ts', gulp.series("compile-ts"));
 });
+
+gulp.task('default', gulp.series('compile-ts'));
