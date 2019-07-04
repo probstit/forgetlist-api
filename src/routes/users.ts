@@ -38,8 +38,16 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        let newUser = await userService.registerAccount(req.body, res);
+        let newUser = await userService.registerAccount(req.body);
         await friendListService.registerFriendList(newUser._id);
+
+        res
+          .status(200)
+          .json({
+            message:
+              "User has been successfully created. A confirmation e-mail has been sent to your e-mail address."
+          })
+          .end();
       } catch (err) {
         next(err);
       }
@@ -55,7 +63,14 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        await userService.confirmAccount(req.query.code, res);
+        await userService.confirmAccount(req.query.code);
+
+        res
+          .status(200)
+          .json({
+            message: "Account has been successfully activated."
+          })
+          .end();
       } catch (err) {
         next(err);
       }
@@ -71,7 +86,29 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        await userService.login(req.body, res);
+        await userService.login(req.body);
+        res.json({ message: "Successfully logged in." }).end();
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // Fetch user profile.
+  router.get(
+    "/users/me",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        let userID = (req as any).user._id;
+        let user = await userService.getUserById(userID);
+        res.json({
+          user
+        });
       } catch (err) {
         next(err);
       }
@@ -88,8 +125,13 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        await userService.changePassword((req as any).user._id, req.body, res);
-        res.end();
+        await userService.changePassword((req as any).user._id, req.body);
+        res
+          .status(200)
+          .json({
+            message: "Password has been successfully changed."
+          })
+          .end();
       } catch (err) {
         next(err);
       }
@@ -105,7 +147,14 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        await userService.forgotPassword(req.body.email, res);
+        await userService.forgotPassword(req.body.email);
+        res
+          .status(200)
+          .json({
+            message:
+              "An e-mail containing further informations has been sent to your e-mail address."
+          })
+          .end();
       } catch (err) {
         next(err);
       }
@@ -121,11 +170,13 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        await userService.resetPassword(
-          req.body.newPassword,
-          req.query.token,
-          res
-        );
+        await userService.resetPassword(req.body.newPassword, req.query.token);
+        res
+          .status(200)
+          .json({
+            message: "Password has been successfully updated."
+          })
+          .end();
       } catch (err) {
         next(err);
       }

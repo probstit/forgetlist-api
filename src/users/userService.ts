@@ -1,5 +1,5 @@
 import * as jwt from "jsonwebtoken";
-import * as express from "express";
+import { context } from "exceptional.js";
 import { Collection, ObjectID } from "mongodb";
 
 import { Mailer } from "../mailer/mailer";
@@ -8,6 +8,8 @@ import { User } from "./user";
 import { IRandomCode } from "../users/IRandomCode";
 import { RandomCode } from "./randomCode";
 import { hostname } from "../secret/secret";
+
+const EXCEPTIONAL = context("default");
 
 export class UserService {
   private mailer: Mailer;
@@ -30,21 +32,16 @@ export class UserService {
     this.jwtSecret = _jwtSecret;
   }
 
-  public async registerAccount(
-    userData: IUser,
-    res: express.Response
-  ): Promise<User> {
+  public async registerAccount(userData: IUser): Promise<User> {
     // Check if the e-mail is already being used.
     let found = await this.usersRepo.findOne({
       email: userData.email
     });
 
     if (found) {
-      res
-        .json({
-          message: "E-mail is already being used!"
-        })
-        .end();
+      throw EXCEPTIONAL.ConflictException(0, {
+        message: "E-mail address is already being used."
+      });
     } else {
       // If the e-mail does not exist, create a new user and add it to the db.
       let newUser: User = new User({
@@ -76,31 +73,20 @@ export class UserService {
         `Please follow this link ${url} to activate your account.`
       );
 
-      res
-        .json({
-          message: `A confirmation link has been sent to ${newUser.email}.`
-        })
-        .end();
-
       return newUser;
     }
   }
 
-  public async confirmAccount(
-    codeId: ObjectID,
-    res: express.Response
-  ): Promise<IUser> {
+  public async confirmAccount(codeId: ObjectID): Promise<IUser> {
     // Find confirmation code.
     let foundCode = await this.codesRepo.findOne({
       _id: new ObjectID(codeId)
     });
 
     if (!foundCode) {
-      res
-        .json({
-          message: "Confirmation code not found!"
-        })
-        .end();
+      throw EXCEPTIONAL.NotFoundException(0, {
+        message: "Confirmation code not found."
+      });
     }
 
     // Confirm the account.
@@ -109,11 +95,9 @@ export class UserService {
     });
 
     if (!userData) {
-      res
-        .json({
-          message: "User not found. Please contact the support team."
-        })
-        .end();
+      throw EXCEPTIONAL.GenericException(0, {
+        message: "Something went wrong on our side. Plase contact support team."
+      });
     }
 
     let user = new User(userData);
@@ -128,47 +112,33 @@ export class UserService {
         }
       }
     );
-
-    res
-      .json({
-        message: "Account has been successfully confirmed!"
-      })
-      .end();
-
+    
     return user;
   }
 
-  public async login(userData: IUser, res: express.Response): Promise<string> {
+  public async login(userData: IUser): Promise<string> {
     // Find the user.
     let found = await this.usersRepo.findOne({
       email: userData.email
     });
 
     if (!found) {
-      res
-        .status(404)
-        .json({
-          message: "There is no such user with this e-mail."
-        })
-        .end();
+      throw EXCEPTIONAL.NotFoundException(0, {
+        message: "No user registered with this e-mail address."
+      });
     }
 
     let user = new User(found);
     let passwordMatch = user.checkPassword(userData.password);
     if (!passwordMatch) {
-      res
-        .status(403)
-        .json({
-          message: "Wrong password!"
-        })
-        .end();
+      throw EXCEPTIONAL.DomainException(0, {
+        message: "Wrong password"
+      });
     } else {
       let token = jwt.sign({ _id: user._id }, this.jwtSecret);
-      res
-        .json({
-          token
-        })
-        .end();
+
+      // For dev purposes.
+      console.log(token);
 
       return token;
     }
@@ -176,8 +146,7 @@ export class UserService {
 
   public async changePassword(
     userID: ObjectID,
-    data: { oldPassword: string; newPassword: string },
-    res: express.Response
+    data: { oldPassword: string; newPassword: string }
   ): Promise<void> {
     // Find user
     let found = await this.usersRepo.findOne({
@@ -185,12 +154,9 @@ export class UserService {
     });
 
     if (!found) {
-      res
-        .status(404)
-        .json({
-          message: "There is no such user with this e-mail."
-        })
-        .end();
+      throw EXCEPTIONAL.GenericException(0, {
+        message: "Something went wrong on our side. Plase contact support team."
+      });
     }
 
     // Encrypt old password and check if it matches actual password.
@@ -199,12 +165,9 @@ export class UserService {
     let passwordMatch = user.checkPassword(data.oldPassword);
 
     if (!passwordMatch) {
-      res
-        .status(403)
-        .json({
-          message: "Old password doesn't match the current password."
-        })
-        .end();
+      throw EXCEPTIONAL.GenericException(0, {
+        message: "Current password doesn't match the old password."
+      });
     } else {
       // Hash the new password and set it as the new one.
       user.hashPW(data.newPassword);
@@ -217,31 +180,19 @@ export class UserService {
             password: user.password
           }
         }
-      );
-
-      res
-        .json({
-          message: "Password has been successfully changed."
-        })
-        .end();
+      );     
     }
   }
 
-  public async forgotPassword(
-    email: string,
-    res: express.Response
-  ): Promise<void> {
+  public async forgotPassword(email: string): Promise<void> {
     let found = await this.usersRepo.findOne({
       email
     });
 
     if (!found) {
-      res
-        .status(404)
-        .json({
-          message: "There is no such user with this e-mail."
-        })
-        .end();
+      throw EXCEPTIONAL.GenericException(0, {
+        message: "Something went wrong on our side. Plase contact support team."
+      });
     }
 
     // Encrypt old password and check if it matches actual password.
@@ -261,20 +212,11 @@ export class UserService {
       "Password recovery",
       `Please follow this link ${url} to reset your password.`
     );
-
-    res
-      .status(200)
-      .json({
-        message:
-          "An e-mail containing further informations has been sent to your e-mail address."
-      })
-      .end();
   }
 
   public async resetPassword(
     newPassword: string,
-    token: ObjectID,
-    res: express.Response
+    token: ObjectID
   ): Promise<void> {
     // Find the token.
     let foundToken = await this.passRecoverCodesRepo.findOne({
@@ -282,12 +224,9 @@ export class UserService {
     });
 
     if (!foundToken) {
-      res
-        .status(403)
-        .json({
-          message: "You are not authorized to perform this action."
-        })
-        .end();
+      throw EXCEPTIONAL.UnauthorizedException(0, {
+        message: "You are not authorized to perform this action."
+      });
     }
 
     // Find the user.
@@ -296,13 +235,9 @@ export class UserService {
     });
 
     if (!userData) {
-      res
-        .status(500)
-        .json({
-          message:
-            "There has been an error on our side, please contact support team."
-        })
-        .end();
+      throw EXCEPTIONAL.GenericException(0, {
+        message: "Something went wrong on our side. Plase contact support team."
+      });
     }
 
     let user = new User(userData);
@@ -319,26 +254,17 @@ export class UserService {
         }
       }
     );
-
-    res
-      .status(200)
-      .json({
-        message: "Password has been successfully updated."
-      })
-      .end();
   }
 
-  public async getUserById(
-    id: ObjectID,
-    res: express.Response
-  ): Promise<IUser> {
+  // Fetch an user by ID.
+  public async getUserById(id: ObjectID): Promise<IUser> {
     let user = await this.usersRepo.findOne({
       _id: id
     });
 
     if (!user) {
-      res.json({
-        message: "User not found!"
+      throw EXCEPTIONAL.NotFoundException(0, {
+        message: "No user with this id in the database"
       });
     }
 
@@ -347,6 +273,7 @@ export class UserService {
     return user;
   }
 
+  // Search users.
   public async search(term: string): Promise<IUser[]> {
     if (!term) return [];
 

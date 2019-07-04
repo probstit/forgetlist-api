@@ -31,8 +31,8 @@ export function socialRoutes(
           email: friendEmail
         });
 
-        await friendListService.addUserToFriendList(userID, friend._id, res);
-        await friendListService.addUserToFriendList(friend._id, userID, res);
+        await friendListService.addUserToFriendList(userID, friend._id);
+        await friendListService.addUserToFriendList(friend._id, userID);
 
         res.json({
           message: "Successfully added friends."
@@ -59,8 +59,8 @@ export function socialRoutes(
           email: friendEmail
         });
 
-        await friendListService.removeUserFromFriendList(userID, friend._id, res);
-        await friendListService.removeUserFromFriendList(friend._id, userID, res);
+        await friendListService.removeUserFromFriendList(userID, friend._id);
+        await friendListService.removeUserFromFriendList(friend._id, userID);
 
         res.json({
           message: "Successfully removed friends."

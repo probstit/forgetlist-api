@@ -1,7 +1,11 @@
 import * as jwt from "jsonwebtoken";
 import * as express from "express";
 import { ObjectID } from "mongodb";
+import { context } from "exceptional.js";
+
 import { jwtSecret } from "../secret/secret";
+
+const EXCEPTIONAL = context('default');
 
 export function isAuthorized(
   req: express.Request,
@@ -13,20 +17,18 @@ export function isAuthorized(
   if (typeof authHeader === "string") {
     let token = authHeader as string;
     if (!token) {
-      res.status(403).json({ message: "Access denied!" });
+      return next(EXCEPTIONAL.UnauthorizedException(0, {}));
     }
 
     token = token.substr("Bearer ".length);
     let decoded = jwt.decode(token) as any;
     if (!decoded) {
-      res.status(403).json({ message: "Access denied!" });
+      return next(EXCEPTIONAL.UnauthorizedException(0, {}));
     }
 
     jwt.verify(token, jwtSecret, (err, decodedToken) => {
       if (err) {
-        res.status(403).json({
-          message: "Access denied!"
-        });
+        return next(EXCEPTIONAL.UnauthorizedException(0, {}));
       } else {
         Object.defineProperty(req, "user", {
           value: {
@@ -37,8 +39,6 @@ export function isAuthorized(
       }
     });
   } else {
-    res.status(403).json({
-      message: "Access denied!"
-    });
+    return next(EXCEPTIONAL.UnauthorizedException(0, {}));
   }
 }

@@ -1,7 +1,10 @@
 import * as express from "express";
 import { Collection, ObjectID } from "mongodb";
+import { context } from "exceptional.js";
 
 import { FriendList } from "./friendList";
+
+const EXCEPTIONAL = context("default");
 
 export class FriendListService {
   private friendsListRepo: Collection<FriendList>;
@@ -28,8 +31,7 @@ export class FriendListService {
   // Adds a user into the friend list.
   public async addUserToFriendList(
     userID: ObjectID,
-    friendID: ObjectID,
-    res: express.Response
+    friendID: ObjectID
   ): Promise<void> {
     // Find user's friend list.
     let foundList = await this.friendsListRepo.findOne({
@@ -38,8 +40,8 @@ export class FriendListService {
 
     // Update user's friend list.
     if (!foundList) {
-      res.json({
-        message: "There has been an error on our side."
+      throw EXCEPTIONAL.GenericException(0, {
+        message: "Something went wrong on our side. Plase contact support team."
       });
     } else {
       await this.friendsListRepo.updateOne(
@@ -58,8 +60,7 @@ export class FriendListService {
   // Removes a user from the friend list.
   public async removeUserFromFriendList(
     userID: ObjectID,
-    friendID: ObjectID,
-    res: express.Response
+    friendID: ObjectID
   ): Promise<void> {
     // Find user's friend list.
     let foundList = await this.friendsListRepo.findOne({
@@ -67,8 +68,8 @@ export class FriendListService {
     });
 
     if (!foundList) {
-      res.json({
-        message: "There has been an error on our side."
+      throw EXCEPTIONAL.GenericException(0, {
+        message: "Something went wrong on our side. Plase contact support team."
       });
     } else {
       // Update user's friend list.
@@ -90,6 +91,12 @@ export class FriendListService {
     let foundList = await this.friendsListRepo.findOne({
       userID: new ObjectID(userID)
     });
+
+    if (!foundList) {
+      throw EXCEPTIONAL.GenericException(0, {
+        message: "Something went wrong on our side. Plase contact support team."
+      });
+    }
 
     return foundList;
   }

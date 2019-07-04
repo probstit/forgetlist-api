@@ -52,7 +52,7 @@ export function itemRoutes(
       next: express.NextFunction
     ) => {
       try {
-        const deletedItem: Item = await itemService.deleteItem(req.params.id, res);
+        const deletedItem: Item = await itemService.deleteItem(req.params.id);
 
         res.status(200).json({
           message: "Item has been successfully removed.",

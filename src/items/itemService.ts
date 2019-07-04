@@ -1,7 +1,10 @@
 import * as express from "express";
+import { context } from "exceptional.js";
 import { Collection, ObjectID } from "mongodb";
 
 import { Item } from "./item";
+
+const EXCEPTIONAL = context("default");
 
 export class ItemService {
   private itemsRepo: Collection<Item>;
@@ -21,17 +24,14 @@ export class ItemService {
   }
 
   // Delete an item.
-  public async deleteItem(
-    itemID: ObjectID,
-    res: express.Response
-  ): Promise<Item> {
+  public async deleteItem(itemID: ObjectID): Promise<Item> {
     // Find the item in the collection.
     const foundItem: Item = await this.itemsRepo.findOne({
       _id: new ObjectID(itemID)
     });
     // Throw an error message if it doesn't exist.
     if (!foundItem) {
-      res.status(404).json({
+      throw EXCEPTIONAL.NotFoundException(0, {
         message: "This item does not exist or it has already been deleted."
       });
     }
@@ -57,6 +57,12 @@ export class ItemService {
     let foundItem = await this.itemsRepo.findOne({
       _id: new ObjectID(itemID)
     });
+
+    if (!foundItem) {
+      throw EXCEPTIONAL.NotFoundException(0, {
+        message: "No user with this id in the database"
+      });
+    }
 
     return foundItem;
   }
