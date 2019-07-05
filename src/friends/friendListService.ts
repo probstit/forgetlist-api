@@ -3,7 +3,7 @@ import { context } from "exceptional.js";
 
 import { FriendList } from "./friendList";
 import { Item } from "../items/item";
-import { ItemService } from "../items/itemService";
+import { ShareService } from "../items/shareService";
 
 const EXCEPTIONAL = context("default");
 
@@ -62,16 +62,9 @@ export class FriendListService {
           }
         }
       );
-      
-      // Find users public items and share them with the friend.
-      await this.itemsRepo.updateMany(
-        { userID, isShared: true },
-        {
-          $addToSet: {
-            sharedWith: friendID
-          }
-        }
-      );
+
+      const shareService = new ShareService(this.itemsRepo);
+      shareService.shareUserItems(userID, friendID);
     }
   }
 
@@ -101,6 +94,9 @@ export class FriendListService {
           }
         }
       );
+      
+      const shareService = new ShareService(this.itemsRepo);
+      await shareService.hideUserItems(userID, friendID);
     }
   }
 

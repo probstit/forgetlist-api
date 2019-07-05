@@ -1,4 +1,3 @@
-import * as express from "express";
 import { context } from "exceptional.js";
 import { Collection, ObjectID } from "mongodb";
 
