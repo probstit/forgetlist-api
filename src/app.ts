@@ -9,6 +9,8 @@ import { socialRoutes } from "./routes/social";
 import { itemRoutes } from "./routes/items";
 // Import app, db and api details from config.json.
 import { dbURL, dbName, appPort, apiVers } from "./secret/secret";
+// Import error handle middleware.
+import { errorHandler } from "./middleware/errorHandle";
 
 const app = express();
 
@@ -32,11 +34,13 @@ MongoClient.connect(dbURL, { useNewUrlParser: true })
 
     const _scoialRoutes = socialRoutes(
       friendsListCollection,
-      usersCollection
+      usersCollection,
+      itemsCollection
     );
 
     const _itemRoutes = itemRoutes(
-      itemsCollection
+      itemsCollection,
+      friendsListCollection
     )
 
     app.use(bodyParser.json());
@@ -44,6 +48,7 @@ MongoClient.connect(dbURL, { useNewUrlParser: true })
     app.use(apiVers, _userRoutes);
     app.use(apiVers, _scoialRoutes);
     app.use(apiVers, _itemRoutes);
+    app.use(errorHandler);
 
     app.listen(appPort, () => console.log(`Listening on port ${appPort}`));
   })

@@ -5,14 +5,17 @@ import { isAuthorized } from "../middleware/authorization";
 import { FriendList } from "../friends/friendList";
 import { FriendListService } from "../friends/friendListService";
 import { IUser } from "../users/IUser";
+import { Item } from "../items/item";
 
 export function socialRoutes(
   friendListRepo: Collection<FriendList>,
-  usersRepo: Collection<IUser>
+  usersRepo: Collection<IUser>,
+  itemsRepo: Collection<Item>
 ): express.Router {
   const router = express.Router();
   const friendListService: FriendListService = new FriendListService(
-    friendListRepo
+    friendListRepo,
+    itemsRepo
   );
 
   // Route for adding a friend.

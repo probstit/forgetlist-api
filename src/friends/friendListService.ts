@@ -1,16 +1,22 @@
-import * as express from "express";
 import { Collection, ObjectID } from "mongodb";
 import { context } from "exceptional.js";
 
 import { FriendList } from "./friendList";
+import { Item } from "../items/item";
+import { ItemService } from "../items/itemService";
 
 const EXCEPTIONAL = context("default");
 
 export class FriendListService {
   private friendsListRepo: Collection<FriendList>;
+  private itemsRepo: Collection<Item>;
 
-  constructor(private _friendsListRepo: Collection<FriendList>) {
+  constructor(
+    private _friendsListRepo: Collection<FriendList>,
+    private _itemsRepo: Collection<Item>
+  ) {
     this.friendsListRepo = _friendsListRepo;
+    this.itemsRepo = _itemsRepo;
   }
 
   /** Creates a new friends list into db.
@@ -40,10 +46,12 @@ export class FriendListService {
 
     // Update user's friend list.
     if (!foundList) {
+      // Throw error if the user is not found.
       throw EXCEPTIONAL.GenericException(0, {
         message: "Something went wrong on our side. Plase contact support team."
       });
     } else {
+      // Add the friend into the user's friend list.
       await this.friendsListRepo.updateOne(
         {
           userID
@@ -51,6 +59,16 @@ export class FriendListService {
         {
           $addToSet: {
             friendIDs: friendID
+          }
+        }
+      );
+      
+      // Find users public items and share them with the friend.
+      await this.itemsRepo.updateMany(
+        { userID, isShared: true },
+        {
+          $addToSet: {
+            sharedWith: friendID
           }
         }
       );

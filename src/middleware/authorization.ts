@@ -17,18 +17,24 @@ export function isAuthorized(
   if (typeof authHeader === "string") {
     let token = authHeader as string;
     if (!token) {
-      return next(EXCEPTIONAL.UnauthorizedException(0, {}));
+      return next(EXCEPTIONAL.UnauthorizedException(0, {
+        message: "Unauthorized access, please login."
+      }));
     }
 
     token = token.substr("Bearer ".length);
     let decoded = jwt.decode(token) as any;
     if (!decoded) {
-      return next(EXCEPTIONAL.UnauthorizedException(0, {}));
+      return next(EXCEPTIONAL.UnauthorizedException(0, {
+        message: "Unauthorized access, please login."
+      }));
     }
 
     jwt.verify(token, jwtSecret, (err, decodedToken) => {
       if (err) {
-        return next(EXCEPTIONAL.UnauthorizedException(0, {}));
+        return next(EXCEPTIONAL.UnauthorizedException(0, {
+          message: "Unauthorized access, please login."
+        }));
       } else {
         Object.defineProperty(req, "user", {
           value: {
@@ -39,6 +45,8 @@ export function isAuthorized(
       }
     });
   } else {
-    return next(EXCEPTIONAL.UnauthorizedException(0, {}));
+    return next(EXCEPTIONAL.UnauthorizedException(0, {
+      message: "Unauthorized access, please login."
+    }));
   }
 }
