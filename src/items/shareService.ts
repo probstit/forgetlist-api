@@ -5,7 +5,7 @@ import { Item } from "./item";
 export class ShareService {
   private itemsRepo: Collection<Item>;
 
-  constructor (private _itemsRepo: Collection<Item>) {
+  constructor(private _itemsRepo: Collection<Item>) {
     this.itemsRepo = _itemsRepo;
   }
 
@@ -26,9 +26,10 @@ export class ShareService {
   public async hideUserItems(userID: ObjectID, friendID: ObjectID) {
     await this.itemsRepo.updateMany(
       {
-      userID,
-      sharedWith: [friendID]
-      }, {
+        userID,
+        sharedWith: { $in: [friendID] }
+      },
+      {
         $pull: {
           sharedWith: friendID
         }

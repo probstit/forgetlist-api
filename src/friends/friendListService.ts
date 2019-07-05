@@ -94,7 +94,7 @@ export class FriendListService {
           }
         }
       );
-      
+
       const shareService = new ShareService(this.itemsRepo);
       await shareService.hideUserItems(userID, friendID);
     }
