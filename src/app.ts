@@ -7,6 +7,7 @@ import * as cors from "cors";
 import { userRoutes } from "./routes/users";
 import { socialRoutes } from "./routes/social";
 import { itemRoutes } from "./routes/items";
+import { shareRoutes } from "./routes/share";
 // Import app, db and api details from config.json.
 import { dbURL, dbName, appPort, apiVers } from "./secret/secret";
 // Import error handle middleware.
@@ -41,13 +42,20 @@ MongoClient.connect(dbURL, { useNewUrlParser: true })
     const _itemRoutes = itemRoutes(
       itemsCollection,
       friendsListCollection
-    )
+    );
+
+    const _shareRoutes = shareRoutes(
+      itemsCollection,
+      usersCollection,
+      friendsListCollection
+    );
 
     app.use(bodyParser.json());
     app.use(cors());
     app.use(apiVers, _userRoutes);
     app.use(apiVers, _scoialRoutes);
     app.use(apiVers, _itemRoutes);
+    app.use(apiVers, _shareRoutes);
     app.use(errorHandler);
 
     app.listen(appPort, () => console.log(`Listening on port ${appPort}`));

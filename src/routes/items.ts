@@ -3,19 +3,19 @@ import { Collection, ObjectID } from "mongodb";
 
 import { isAuthorized } from "../middleware/authorization";
 import { Item } from "../items/item";
+import { IItem } from "../items/IItem";
 import { ItemService } from "../items/itemService";
 import { FriendList } from "../friends/friendList";
 import { FriendListService } from "../friends/friendListService";
 
 export function itemRoutes(
-  itemsRepo: Collection<Item>,
+  itemsRepo: Collection<IItem>,
   friendsRepo: Collection<FriendList>
 ): express.Router {
   const router = express.Router();
   const itemService: ItemService = new ItemService(itemsRepo);
   const friendListService: FriendListService = new FriendListService(
-    friendsRepo,
-    itemsRepo
+    friendsRepo
   );
 
   // Route for adding an item.
@@ -43,10 +43,10 @@ export function itemRoutes(
          * If so, then add user's friends on the sharedWith list.
          */
         if (newItem.isShared) {
-          const usersFriendList = await friendListService.getFriendList(
+          const userFriendList = await friendListService.getFriendList(
             newItem.userID
           );
-          const userFriends = [...usersFriendList.friendIDs];
+          const userFriends = [...userFriendList.friendIDs];
           newItem.sharedWith = [...userFriends];
         }
         // Push the new item into the db.
@@ -72,7 +72,7 @@ export function itemRoutes(
       next: express.NextFunction
     ) => {
       try {
-        const deletedItem: Item = await itemService.deleteItem(req.params.id);
+        const deletedItem: IItem = await itemService.deleteItem(req.params.id);
 
         res.status(200).json({
           message: "Item has been successfully removed.",
@@ -84,7 +84,7 @@ export function itemRoutes(
     }
   );
 
-  // Route for getting the items for a user.
+  // Route for getting the items owned by a user.
   router.get(
     "/items/get-items",
     isAuthorized,
@@ -96,7 +96,7 @@ export function itemRoutes(
       try {
         let userID = (req as any).user._id;
 
-        let userItems = await itemService.getItems(userID);
+        let userItems = await itemService.getPersonalItems(userID);
 
         res.json({
           items: userItems
@@ -107,5 +107,80 @@ export function itemRoutes(
     }
   );
 
+  // Route for fetching all the items shared by other users.
+  router.get(
+    "/items/shared-by-others",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        let userID = (req as any).user._id;
+        let sharedByOthers = await itemService.getItemsSharedByOthers(userID);
+
+        res.json({
+          items: sharedByOthers
+        });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // Route for marking an item as bought.
+  router.put(
+    "/items/mark-bought/:id",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        const userID = (req as any).user._id;
+        const boughtItem = await itemService.markAsBought(
+          req.params.id,
+          userID
+        );
+
+        res.json({
+          message: "Successfully bought item",
+          boughtItem,
+          boughtBy: userID
+        });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // Route for unmarking an item as bought.
+  router.put(
+    "/items/unmark-bought/:id",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        const userID = (req as any).user._id;
+        const unmarkedItem = await itemService.unmarkBought(
+          req.params.id,
+          userID
+        );
+
+        res.json({
+          message: "Unmarked item",
+          unmarkedItem,
+          unmarkedBy: userID
+        });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
   return router;
 }

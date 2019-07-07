@@ -6,6 +6,7 @@ import { FriendList } from "../friends/friendList";
 import { FriendListService } from "../friends/friendListService";
 import { IUser } from "../users/IUser";
 import { Item } from "../items/item";
+import { ShareService } from "../items/shareService";
 
 export function socialRoutes(
   friendListRepo: Collection<FriendList>,
@@ -14,9 +15,9 @@ export function socialRoutes(
 ): express.Router {
   const router = express.Router();
   const friendListService: FriendListService = new FriendListService(
-    friendListRepo,
-    itemsRepo
+    friendListRepo
   );
+  const shareService: ShareService = new ShareService(itemsRepo);
 
   // Route for adding a friend.
   router.post(
@@ -36,6 +37,9 @@ export function socialRoutes(
 
         await friendListService.addUserToFriendList(userID, friend._id);
         await friendListService.addUserToFriendList(friend._id, userID);
+
+        await shareService.shareUserItems(userID, friend._id);
+        await shareService.shareUserItems(friend._id, userID);
 
         res.json({
           message: "Successfully added friends."
@@ -64,6 +68,9 @@ export function socialRoutes(
 
         await friendListService.removeUserFromFriendList(userID, friend._id);
         await friendListService.removeUserFromFriendList(friend._id, userID);
+
+        await shareService.hideUserItems(userID, friend._id);
+        await shareService.hideUserItems(friend._id, userID);
 
         res.json({
           message: "Successfully removed friends."

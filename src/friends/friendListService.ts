@@ -2,21 +2,14 @@ import { Collection, ObjectID } from "mongodb";
 import { context } from "exceptional.js";
 
 import { FriendList } from "./friendList";
-import { Item } from "../items/item";
-import { ShareService } from "../items/shareService";
 
 const EXCEPTIONAL = context("default");
 
 export class FriendListService {
   private friendsListRepo: Collection<FriendList>;
-  private itemsRepo: Collection<Item>;
 
-  constructor(
-    private _friendsListRepo: Collection<FriendList>,
-    private _itemsRepo: Collection<Item>
-  ) {
+  constructor(private _friendsListRepo: Collection<FriendList>) {
     this.friendsListRepo = _friendsListRepo;
-    this.itemsRepo = _itemsRepo;
   }
 
   /** Creates a new friends list into db.
@@ -62,9 +55,6 @@ export class FriendListService {
           }
         }
       );
-
-      const shareService = new ShareService(this.itemsRepo);
-      shareService.shareUserItems(userID, friendID);
     }
   }
 
@@ -80,7 +70,7 @@ export class FriendListService {
 
     if (!foundList) {
       throw EXCEPTIONAL.GenericException(0, {
-        message: "Something went wrong on our side. Plase contact support team."
+        message: "Something went wrong on our side. Please contact support team."
       });
     } else {
       // Update user's friend list.
@@ -94,9 +84,6 @@ export class FriendListService {
           }
         }
       );
-
-      const shareService = new ShareService(this.itemsRepo);
-      await shareService.hideUserItems(userID, friendID);
     }
   }
 
