@@ -48,7 +48,22 @@ export class ItemService {
 
   // Get items owned by a user.
   public async getPersonalItems(userID: ObjectID): Promise<IItem[]> {
-    const items = await this.itemsRepo.find({ userID }).toArray();
+    const items = await this.itemsRepo
+      .find({ userID })
+      .sort({ isShared: 1 })
+      .toArray();
+
+    return items;
+  }
+
+  // Get items shared by other users.
+  public async getItemsSharedByOthers(userID: ObjectID): Promise<IItem[]> {
+    const items = await this.itemsRepo
+      .find({
+        sharedWith: { $in: [userID] }
+      })
+      .sort({ userID: -1 })
+      .toArray();
 
     return items;
   }
@@ -125,17 +140,6 @@ export class ItemService {
     );
 
     return item;
-  }
-
-  // Get items shared by other users.
-  public async getItemsSharedByOthers(userID: ObjectID): Promise<IItem[]> {
-    const items = await this.itemsRepo
-      .find({
-        sharedWith: { $in: [userID] }
-      })
-      .toArray();
-
-    return items;
   }
 
   // Get an item by ID.
