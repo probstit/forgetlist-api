@@ -2,12 +2,12 @@ import * as jwt from "jsonwebtoken";
 import { context } from "exceptional.js";
 import { Collection, ObjectID } from "mongodb";
 
-import { Mailer } from "../mailer/mailer";
-import { IUser } from "../users/IUser";
+import { Mailer } from "../../mailer/mailer";
+import { IUser } from "./IUser";
 import { User } from "./user";
-import { IRandomCode } from "../users/IRandomCode";
+import { IRandomCode } from "./IRandomCode";
 import { RandomCode } from "./randomCode";
-import { hostname } from "../secret/secret";
+import { hostname } from "../../secret/secret";
 
 const EXCEPTIONAL = context("default");
 
@@ -191,7 +191,7 @@ export class UserService {
 
     if (!found) {
       throw EXCEPTIONAL.GenericException(0, {
-        message: "Something went wrong on our side. Plase contact support team."
+        message: "Please enter a valid e-mail."
       });
     }
 

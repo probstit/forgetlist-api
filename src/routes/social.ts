@@ -2,11 +2,11 @@ import * as express from "express";
 import { Collection, ObjectID } from "mongodb";
 
 import { isAuthorized } from "../middleware/authorization";
-import { FriendList } from "../friends/friendList";
-import { FriendListService } from "../friends/friendListService";
-import { IUser } from "../users/IUser";
-import { Item } from "../items/item";
-import { ShareService } from "../items/shareService";
+import { FriendList } from "../domain/friends/friendList";
+import { FriendListService } from "../domain/friends/friendListService";
+import { IUser } from "../domain/users/IUser";
+import { Item } from "../domain/items/item";
+import { ShareService } from "../domain/items/shareService";
 
 export function socialRoutes(
   friendListRepo: Collection<FriendList>,

@@ -2,11 +2,11 @@ import * as express from "express";
 import { Collection, ObjectID } from "mongodb";
 
 import { isAuthorized } from "../middleware/authorization";
-import { Item } from "../items/item";
-import { IItem } from "../items/IItem";
-import { ItemService } from "../items/itemService";
-import { FriendList } from "../friends/friendList";
-import { FriendListService } from "../friends/friendListService";
+import { Item } from "../domain/items/item";
+import { IItem } from "../domain/items/IItem";
+import { ItemService } from "../domain/items/itemService";
+import { FriendList } from "../domain/friends/friendList";
+import { FriendListService } from "../domain/friends/friendListService";
 
 export function itemRoutes(
   itemsRepo: Collection<IItem>,

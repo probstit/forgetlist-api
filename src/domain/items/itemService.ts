@@ -3,7 +3,6 @@ import { Collection, ObjectID } from "mongodb";
 
 import { IItem } from "./IItem";
 import { Item } from "./item";
-import { Exceptional } from "exceptional.js/build/exceptional";
 
 const EXCEPTIONAL = context("default");
 

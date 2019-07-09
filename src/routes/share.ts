@@ -1,12 +1,12 @@
 import * as express from "express";
-import { Collection, ObjectID } from "mongodb";
+import { Collection } from "mongodb";
 
 import { isAuthorized } from "../middleware/authorization";
-import { IItem } from "../items/IItem";
-import { ShareService } from "../items/shareService";
-import { FriendList } from "../friends/friendList";
-import { FriendListService } from "../friends/friendListService";
-import { IUser } from "../users/IUser";
+import { IItem } from "../domain/items/IItem";
+import { ShareService } from "../domain/items/shareService";
+import { FriendList } from "../domain/friends/friendList";
+import { FriendListService } from "../domain/friends/friendListService";
+import { IUser } from "../domain/users/IUser";
 import { context } from "exceptional.js";
 
 const EXCEPTIONAL = context("default");

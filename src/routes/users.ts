@@ -2,11 +2,11 @@ import * as express from "express";
 import { Collection } from "mongodb";
 
 import { isAuthorized } from "../middleware/authorization";
-import { IUser } from "../users/IUser";
-import { IRandomCode } from "../users/IRandomCode";
-import { UserService } from "../users/userService";
-import { FriendList } from "../friends/friendList";
-import { FriendListService } from "../friends/friendListService";
+import { IUser } from "../domain/users/IUser";
+import { IRandomCode } from "../domain/users/IRandomCode";
+import { UserService } from "../domain/users/userService";
+import { FriendList } from "../domain/friends/friendList";
+import { FriendListService } from "../domain/friends/friendListService";
 import { jwtSecret } from "../secret/secret";
 import { Mailer } from "../mailer/mailer";
 
