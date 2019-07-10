@@ -161,7 +161,7 @@ export class ShareService {
   /* Hides all items from all the users.
    * Items will be set as private.
    */
-  public async blockSharingForAll(userID: ObjectID): Promise<void> {
+  public async hideList(userID: ObjectID): Promise<void> {
     await this.itemsRepo.updateMany(
       { userID, isShared: true },
       { $set: { isShared: false, sharedWith: [] } }

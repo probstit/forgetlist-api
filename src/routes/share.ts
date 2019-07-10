@@ -57,6 +57,7 @@ export function shareRoutes(
         let isFriend = false;
 
         foundFriendList.friendIDs.forEach(friendID => {
+
           if (friendID.toString() === foundFriend._id.toString()) {
             isFriend = true;
           }
@@ -70,7 +71,6 @@ export function shareRoutes(
               "In order to be able to share an item, users must be friends!"
           });
         }
-
         res.json({
           message: "Item successfully shared!"
         });
@@ -155,7 +155,7 @@ export function shareRoutes(
 
   // Route for setting all items as private.
   router.put(
-    "/items/block-share-all",
+    "/items/hide-list",
     isAuthorized,
     async (
       req: express.Request,
@@ -163,7 +163,7 @@ export function shareRoutes(
       next: express.NextFunction
     ) => {
       const userID = (req as any).user._id;
-      await shareService.blockSharingForAll(userID);
+      await shareService.hideList(userID);
 
       res.json({
         message: "All public items are now set as private."
