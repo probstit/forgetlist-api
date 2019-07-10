@@ -52,8 +52,8 @@ export class ShareService {
     );
   }
 
-  // Share one item with a selected user (has to be friends).
-  public async shareItem(
+  // Share one item with one or more selected users (has to be friends).
+  public async shareWithSome(
     itemID: ObjectID,
     friendID: ObjectID,
     userID: ObjectID
@@ -96,11 +96,40 @@ export class ShareService {
     );
   }
 
+  // Hides an item from one or more specific users.
+  public async hideItemFromSome(
+    itemID: ObjectID,
+    userID: ObjectID,
+    friendID: ObjectID
+  ): Promise<void> {
+    let foundItem = await this.itemsRepo.findOne({
+      _id: new ObjectID(itemID),
+      userID
+    });
+
+    if (!foundItem) {
+      throw EXCEPTIONAL.NotFoundException(0, {
+        message: "Item not found!"
+      });
+    } 
+
+    await this.itemsRepo.updateOne(
+      {
+        _id: new ObjectID(itemID)
+      },
+      {
+        $pull: {
+          sharedWith: friendID
+        }
+      }
+    );
+  }
+
   /*
    * Enable sharing an item (making it public).
    * It will be shared with all the users from the friend list.
    */
-  public async allowSharingForOne(
+  public async shareItem(
     itemID: ObjectID,
     userID: ObjectID,
     userFriendsList: FriendList
@@ -128,43 +157,6 @@ export class ShareService {
         _id: new ObjectID(item._id)
       },
       { $set: { isShared: item.isShared, sharedWith: item.sharedWith } }
-    );
-  }
-
-  /* This will set all the private items as public.
-   * Friends will be able to see these items afterwards.
-   */
-  public async allowSharingForAll(
-    userID: ObjectID,
-    userFriendsList: FriendList
-  ): Promise<void> {
-    const userFriends = [...userFriendsList.friendIDs];
-    await this.itemsRepo.updateMany(
-      { userID, isShared: false },
-      { $set: { isShared: true, sharedWith: userFriends } }
-    );
-  }
-
-  /* This will share all the items, private or public
-   * with everyone in the friend list.
-   */
-  public async shareListWithAllFriends(
-    userID: ObjectID,
-    userFriendsList: FriendList
-  ): Promise<void> {
-    const userFriends = [...userFriendsList.friendIDs];
-    await this.itemsRepo.updateMany(
-      { userID },
-      { $set: { isShared: true, sharedWith: userFriends } }
-    );
-  }
-  /* Hides all items from all the users.
-   * Items will be set as private.
-   */
-  public async hideList(userID: ObjectID): Promise<void> {
-    await this.itemsRepo.updateMany(
-      { userID, isShared: true },
-      { $set: { isShared: false, sharedWith: [] } }
     );
   }
 
@@ -208,32 +200,40 @@ export class ShareService {
     return removedAccess;
   }
 
-  // Hides an item from a specific user.
-  public async hideItemFromOne(
-    itemID: ObjectID,
+  /* This will set all the private items as public.
+   * Friends will be able to see these items afterwards.
+   */
+  public async allowSharingForAll(
     userID: ObjectID,
-    friendID: ObjectID
+    userFriendsList: FriendList
   ): Promise<void> {
-    let foundItem = await this.itemsRepo.findOne({
-      _id: new ObjectID(itemID),
-      userID
-    });
+    const userFriends = [...userFriendsList.friendIDs];
+    await this.itemsRepo.updateMany(
+      { userID, isShared: false },
+      { $set: { isShared: true, sharedWith: userFriends } }
+    );
+  }
 
-    if (!foundItem) {
-      throw EXCEPTIONAL.NotFoundException(0, {
-        message: "Item not found!"
-      });
-    } 
-
-    await this.itemsRepo.updateOne(
-      {
-        _id: new ObjectID(itemID)
-      },
-      {
-        $pull: {
-          sharedWith: friendID
-        }
-      }
+  /* This will share all the items, private or public
+   * with everyone in the friend list.
+   */
+  public async shareListWithAllFriends(
+    userID: ObjectID,
+    userFriendsList: FriendList
+  ): Promise<void> {
+    const userFriends = [...userFriendsList.friendIDs];
+    await this.itemsRepo.updateMany(
+      { userID },
+      { $set: { isShared: true, sharedWith: userFriends } }
+    );
+  }
+  /* Hides all items from all the users.
+   * Items will be set as private.
+   */
+  public async hideList(userID: ObjectID): Promise<void> {
+    await this.itemsRepo.updateMany(
+      { userID, isShared: true },
+      { $set: { isShared: false, sharedWith: [] } }
     );
   }
 }

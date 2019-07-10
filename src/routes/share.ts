@@ -22,9 +22,9 @@ export function shareRoutes(
     friendsRepo
   );
 
-  // Route for sharing a specific item, with a friend.
+  // Route for sharing a specific item, with one or more friends.
   router.put(
-    "/items/share-item/:id",
+    "/items/share-with-some/:id",
     isAuthorized,
     async (
       req: express.Request,
@@ -34,43 +34,54 @@ export function shareRoutes(
       try {
         // Find the friend.
         let userID = (req as any).user._id;
-        let foundFriend = await usersRepo.findOne({
-          email: req.body.email
-        });
 
-        if (!foundFriend) {
-          throw EXCEPTIONAL.NotFoundException(0, {
-            message: "Friend not found."
-          });
-        }
-        // Find user's friend list.
-        let foundFriendList = await friendsRepo.findOne({
-          userID
-        });
+        let friendEmails: string[] = req.body.emails;
+        friendEmails.forEach(async (email: string) => {
+          try {
+            // Look for the friend in users repo to fetch the _id.
+            let foundFriend = await usersRepo.findOne({
+              email
+            });
 
-        if (!foundFriendList) {
-          throw EXCEPTIONAL.NotFoundException(0, {
-            message: "Friend list not found."
-          });
-        }
-        // Check if the users are friends.
-        let isFriend = false;
+            if (!foundFriend) {
+              throw EXCEPTIONAL.NotFoundException(0, {
+                message: "Friend not found."
+              });
+            }
+            // Find user's friend list.
+            let foundFriendList = await friendsRepo.findOne({
+              userID
+            });
 
-        foundFriendList.friendIDs.forEach(friendID => {
-
-          if (friendID.toString() === foundFriend._id.toString()) {
-            isFriend = true;
+            if (!foundFriendList) {
+              throw EXCEPTIONAL.NotFoundException(0, {
+                message: "Friend list not found."
+              });
+            }
+            // Check if the users are friends.
+            let isFriend = false;
+            foundFriendList.friendIDs.forEach(friendID => {
+              if (friendID.toString() === foundFriend._id.toString()) {
+                isFriend = true;
+              }
+            });
+            // Only allow sharing the item if the users are friends.
+            if (isFriend) {
+              await shareService.shareWithSome(
+                req.params.id,
+                foundFriend._id,
+                userID
+              );
+            } else {
+              throw EXCEPTIONAL.DomainException(0, {
+                message: "Users are not friends"
+              });
+            }
+          } catch (err) {
+            next(err);
           }
         });
-        // Only allow sharing the item if the users are friends.
-        if (isFriend) {
-          await shareService.shareItem(req.params.id, foundFriend._id, userID);
-        } else {
-          res.json({
-            message:
-              "In order to be able to share an item, users must be friends!"
-          });
-        }
+
         res.json({
           message: "Item successfully shared!"
         });
@@ -82,7 +93,7 @@ export function shareRoutes(
 
   // Route for enabling sharing an item with all friends.
   router.put(
-    "/items/enable-share-one/:id",
+    "/items/share-with-all/:id",
     isAuthorized,
     async (
       req: express.Request,
@@ -92,11 +103,7 @@ export function shareRoutes(
       try {
         const userID = (req as any).user._id;
         const userFriendsList = await friendListService.getFriendList(userID);
-        await shareService.allowSharingForOne(
-          req.params.id,
-          userID,
-          userFriendsList
-        );
+        await shareService.shareItem(req.params.id, userID, userFriendsList);
 
         res.json({
           message: "Enabled sharing!"
@@ -198,7 +205,7 @@ export function shareRoutes(
 
   // Route for hiding an item from a user.
   router.put(
-    "/items/hide-from-one/:id",
+    "/items/hide-from-some/:id",
     isAuthorized,
     async (
       req: express.Request,
@@ -207,21 +214,29 @@ export function shareRoutes(
     ) => {
       try {
         let userID = (req as any).user._id;
-        let foundFriend = await usersRepo.findOne({
-          email: req.body.email
+        let friendsEmail: string[] = req.body.emails;
+
+        friendsEmail.forEach(async (email: string) => {
+          try {
+            let foundFriend = await usersRepo.findOne({
+              email
+            });
+
+            if (!foundFriend) {
+              throw EXCEPTIONAL.NotFoundException(0, {
+                message: "Friend not found!"
+              });
+            }
+
+            await shareService.hideItemFromSome(
+              req.params.id,
+              userID,
+              foundFriend._id
+            );
+          } catch (err) {
+            next(err);
+          }
         });
-
-        if (!foundFriend) {
-          throw EXCEPTIONAL.NotFoundException(0, {
-            message: "Friend not found!"
-          });
-        }
-
-        await shareService.hideItemFromOne(
-          req.params.id,
-          userID,
-          foundFriend._id
-        );
 
         res.json({
           message: "Item successfully hidden."
