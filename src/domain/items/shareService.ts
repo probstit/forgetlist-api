@@ -121,7 +121,7 @@ export class ShareService {
 
     let item = new Item(foundItem);
     item.enableSharing();
-    item.sharedWith.push(...userFriends);
+    item.sharedWith = [...userFriends];
 
     await this.itemsRepo.updateOne(
       {
