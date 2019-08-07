@@ -39,10 +39,7 @@ MongoClient.connect(dbURL, { useNewUrlParser: true })
       itemsCollection
     );
 
-    const _itemRoutes = itemRoutes(
-      itemsCollection,
-      friendsListCollection
-    );
+    const _itemRoutes = itemRoutes(itemsCollection, friendsListCollection);
 
     const _shareRoutes = shareRoutes(
       itemsCollection,

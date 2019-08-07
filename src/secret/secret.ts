@@ -1,6 +1,9 @@
 import * as nconf from "nconf";
 
-nconf.argv().env().file({ file: "../config.json" });
+nconf
+  .argv()
+  .env()
+  .file({ file: "../config.json" });
 
 // DB Setup.
 const dbURL: string = nconf.get("db:url");

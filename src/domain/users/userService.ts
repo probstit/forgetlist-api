@@ -7,7 +7,7 @@ import { IUser } from "./IUser";
 import { User } from "./user";
 import { IRandomCode } from "./IRandomCode";
 import { RandomCode } from "./randomCode";
-import { hostname } from "../../secret/secret";
+import { hostname, apiVers, appPort } from "../../secret/secret";
 
 const EXCEPTIONAL = context("default");
 
@@ -66,7 +66,7 @@ export class UserService {
       await this.codesRepo.insertOne(code);
 
       // Send e-mail for user confirmation.
-      let url = `${hostname}api/v1.0/users/confirm?code=${code._id}`;
+      let url = `${hostname}${appPort}${apiVers}users/confirm?code=${code._id}`;
       await this.mailer.send(
         newUser.email,
         "Account confirmation",
@@ -112,7 +112,7 @@ export class UserService {
         }
       }
     );
-    
+
     return user;
   }
 
@@ -180,7 +180,7 @@ export class UserService {
             password: user.password
           }
         }
-      );     
+      );
     }
   }
 
@@ -206,7 +206,9 @@ export class UserService {
     await this.passRecoverCodesRepo.insertOne(code);
 
     // Send e-mail regarding password reset.
-    let url = `${hostname}api/v1.0/users/reset-password?token=${code._id}`;
+    let url = `${hostname}${appPort}${apiVers}users/reset-password?token=${
+      code._id
+    }`;
     await this.mailer.send(
       user.email,
       "Password recovery",
