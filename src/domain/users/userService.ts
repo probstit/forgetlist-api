@@ -137,9 +137,6 @@ export class UserService {
     } else {
       let token = jwt.sign({ _id: user._id }, this.jwtSecret);
 
-      // For dev purposes.
-      console.log(token);
-
       return token;
     }
   }

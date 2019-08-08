@@ -86,8 +86,10 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        await userService.login(req.body);
-        res.json({ message: "Successfully logged in." }).end();
+        let jwt = await userService.login(req.body);
+        res
+          .status(200)
+          .json({ message: "Successfully logged in.", accesToken: jwt });
       } catch (err) {
         next(err);
       }
