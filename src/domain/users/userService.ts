@@ -124,7 +124,7 @@ export class UserService {
 
     if (!found) {
       throw EXCEPTIONAL.NotFoundException(0, {
-        message: "No user registered with this e-mail address."
+        message: "Wrong e-mail or password."
       });
     }
 

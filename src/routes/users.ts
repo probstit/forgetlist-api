@@ -38,7 +38,6 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        console.log(req.body);
         let newUser = await userService.registerAccount(req.body);
         await friendListService.registerFriendList(newUser._id);
 
