@@ -116,6 +116,23 @@ export class UserService {
     return user;
   }
 
+  public async isActivated(userData: IUser): Promise<boolean> {
+    //Find the user.
+    let found = await this.usersRepo.findOne({
+      email: userData.email
+    });
+
+    if (!found) {
+      throw EXCEPTIONAL.NotFoundException(0, {
+        message: "User was not found."
+      });
+    }
+
+    let user = new User(found);
+
+    return user.active;
+  }
+
   public async login(userData: IUser): Promise<string> {
     // Find the user.
     let found = await this.usersRepo.findOne({
