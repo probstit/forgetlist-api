@@ -181,14 +181,14 @@ export class UserService {
     }
   }
 
-  public async forgotPassword(email: string): Promise<void> {
+  public async forgotPassword(userData: IUser): Promise<void> {
     let found = await this.usersRepo.findOne({
-      email
+      email: userData.email
     });
 
     if (!found) {
       throw EXCEPTIONAL.GenericException(0, {
-        message: "Please enter a valid e-mail."
+        message: "There is no account registered with this e-mail."
       });
     }
 

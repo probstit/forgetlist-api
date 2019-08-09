@@ -149,7 +149,7 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        await userService.forgotPassword(req.body.email);
+        await userService.forgotPassword(req.body);
         res
           .status(200)
           .json({
