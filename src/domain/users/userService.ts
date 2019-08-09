@@ -129,6 +129,12 @@ export class UserService {
     }
 
     let user = new User(found);
+    let passwordMatch = user.checkPassword(userData.password);
+    if (!passwordMatch) {
+      throw EXCEPTIONAL.DomainException(0, {
+        message: "Wrong password"
+      });
+    }
 
     return user.active;
   }
@@ -146,6 +152,7 @@ export class UserService {
     }
 
     let user = new User(found);
+
     let passwordMatch = user.checkPassword(userData.password);
     if (!passwordMatch) {
       throw EXCEPTIONAL.DomainException(0, {
