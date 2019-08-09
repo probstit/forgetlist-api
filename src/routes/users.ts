@@ -94,8 +94,8 @@ export function userRoutes(
     }
   );
 
-  // Check if a user activated it's account.
-  router.get(
+  // Check if a user activated his/hers account.
+  router.post(
     "/users/is-active",
     async (
       req: express.Request,
