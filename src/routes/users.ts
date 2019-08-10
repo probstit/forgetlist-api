@@ -87,28 +87,11 @@ export function userRoutes(
     ) => {
       try {
         let jwt = await userService.login(req.body);
-        res.status(200).end();
-      } catch (err) {
-        next(err);
-      }
-    }
-  );
-
-  // Check if a user activated his/hers account.
-  router.post(
-    "/users/is-active",
-    async (
-      req: express.Request,
-      res: express.Response,
-      next: express.NextFunction
-    ) => {
-      try {
-        const isActive = await userService.isActivated(req.body);
-        res.json({
-          isActive
+        res.status(200).json({
+          accesToken: jwt
         });
       } catch (err) {
-        console.error(err);
+        next(err);
       }
     }
   );

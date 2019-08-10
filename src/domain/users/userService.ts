@@ -124,7 +124,7 @@ export class UserService {
 
     if (!found) {
       throw EXCEPTIONAL.NotFoundException(0, {
-        message: "User was not found."
+        message: "Wrong e-mail or password."
       });
     }
 
@@ -152,6 +152,12 @@ export class UserService {
     }
 
     let user = new User(found);
+
+    if (!user.active) {
+      throw EXCEPTIONAL.DomainException(0, {
+        message: "Please activate your account before logging in."
+      });
+    }
 
     let passwordMatch = user.checkPassword(userData.password);
     if (!passwordMatch) {
