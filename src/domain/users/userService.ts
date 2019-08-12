@@ -217,7 +217,7 @@ export class UserService {
     });
 
     if (!found) {
-      throw EXCEPTIONAL.GenericException(0, {
+      throw EXCEPTIONAL.DomainException(0, {
         message: "There is no account registered with this e-mail."
       });
     }

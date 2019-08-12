@@ -45,7 +45,7 @@ export function userRoutes(
           .status(200)
           .json({
             message:
-              "User has been successfully created. A confirmation e-mail has been sent to your e-mail address."
+              "Account has been successfully created. A confirmation e-mail has been sent to your e-mail address."
           })
           .end();
       } catch (err) {
@@ -87,7 +87,7 @@ export function userRoutes(
     ) => {
       try {
         let jwt = await userService.login(req.body);
-        res.status(200).json({
+        res.json({
           accesToken: jwt
         });
       } catch (err) {
