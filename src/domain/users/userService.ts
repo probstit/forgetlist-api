@@ -70,7 +70,42 @@ export class UserService {
       await this.mailer.send(
         newUser.email,
         "Account confirmation",
-        `Please follow this link ${url} to activate your account.`
+        `
+        <html>
+          <head>
+           <link href="https://fonts.googleapis.com/css?family=Montserrat|Pacifico&display=swap" rel="stylesheet">
+          </head>
+          <body>
+            <div style="
+              background-color: #234789;
+              font-family: Montserrat, Verdana, Tahoma, sans-serif;
+              text-align: center;
+              width: 100%;
+              height: 200px;
+              padding: 10px;
+              color: #fbf5f3;
+            ">
+              <h1 style="
+                font-family: Pacifico";
+                margin-top: 140px;
+                >Shoppery</h1>
+              <h3 style="color: #fbf5f3; margin-top: 50px;">Click on the button below to activate your account.</h1>
+              <div style="
+                background-color: #fbf5f3;
+                font-family: Montserrat, Verdana, Tahoma, sans-serif;
+                margin: 10px auto;
+                border-style: none;
+                border: none;
+                display: block;
+                font-weight: bold;
+                width: 80px;
+                height: 25px;
+                border-radius: 20px;
+                padding: 2px;
+              "><a href="${url}" style="color: #234789; text-decoration: none; font-size: 13px;">Activate</a></div>
+            </div>
+          </body>
+        </html>`
       );
 
       return newUser;

@@ -24,12 +24,12 @@ export class Mailer {
     });
   }
 
-  async send(email: string, subject: string, text: string) {
+  async send(email: string, subject: string, html) {
     await this.transporter.sendMail({
       from: appMail,
       to: email,
       subject,
-      text
+      html
     });
   }
 }
