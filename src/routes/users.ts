@@ -1,5 +1,5 @@
 import * as express from "express";
-import { Collection } from "mongodb";
+import { Collection, ObjectID } from "mongodb";
 
 import { isAuthorized } from "../middleware/authorization";
 import { IUser } from "../domain/users/IUser";
@@ -63,11 +63,16 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        await userService.confirmAccount(req.query.code);
+        const user = await userService.confirmAccount(
+          new ObjectID(req.query.code)
+        );
 
+        const token = await userService.generateToken(user._id);
         res
           .status(200)
           .json({
+            isActive: user.active,
+            token,
             message: "Account has been successfully activated."
           })
           .end();

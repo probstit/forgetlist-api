@@ -7,7 +7,7 @@ import { IUser } from "./IUser";
 import { User } from "./user";
 import { IRandomCode } from "./IRandomCode";
 import { RandomCode } from "./randomCode";
-import { hostname, apiVers, appPort } from "../../secret/secret";
+import { hostname, apiVers } from "../../secret/secret";
 
 const EXCEPTIONAL = context("default");
 
@@ -66,7 +66,7 @@ export class UserService {
       await this.codesRepo.insertOne(code);
 
       // Send e-mail for user confirmation.
-      let url = `${hostname}${appPort}${apiVers}users/confirm?code=${code._id}`;
+      let url = `${hostname}3000/users/confirm?code=${code._id}`;
       await this.mailer.send(
         newUser.email,
         "Account confirmation",
@@ -88,7 +88,7 @@ export class UserService {
               <h1 style="
                 font-family: Pacifico";
                 margin-top: 140px;
-                >Shoppery</h1>
+                >Shopery</h1>
               <h3 style="color: #fbf5f3; margin-top: 50px;">Click on the button below to activate your account.</h1>
               <div style="
                 background-color: #fbf5f3;
@@ -115,7 +115,7 @@ export class UserService {
   public async confirmAccount(codeId: ObjectID): Promise<IUser> {
     // Find confirmation code.
     let foundCode = await this.codesRepo.findOne({
-      _id: new ObjectID(codeId)
+      _id: codeId
     });
 
     if (!foundCode) {
@@ -136,7 +136,15 @@ export class UserService {
     }
 
     let user = new User(userData);
-    user.activate();
+    let token;
+    if (user.active) {
+      throw EXCEPTIONAL.ConflictException(0, {
+        message: "Account has already been activated"
+      });
+    } else {
+      user.activate();
+      token = jwt.sign({ _id: user._id }, this.jwtSecret);
+    }
 
     // Update confirmation info in the db.
     await this.usersRepo.updateOne(
@@ -149,29 +157,6 @@ export class UserService {
     );
 
     return user;
-  }
-
-  public async isActivated(userData: IUser): Promise<boolean> {
-    //Find the user.
-    let found = await this.usersRepo.findOne({
-      email: userData.email
-    });
-
-    if (!found) {
-      throw EXCEPTIONAL.NotFoundException(0, {
-        message: "Wrong e-mail or password."
-      });
-    }
-
-    let user = new User(found);
-    let passwordMatch = user.checkPassword(userData.password);
-    if (!passwordMatch) {
-      throw EXCEPTIONAL.DomainException(0, {
-        message: "Wrong password"
-      });
-    }
-
-    return user.active;
   }
 
   public async login(userData: IUser): Promise<string> {
@@ -200,10 +185,16 @@ export class UserService {
         message: "Wrong password"
       });
     } else {
-      let token = jwt.sign({ _id: user._id }, this.jwtSecret);
+      let token = this.generateToken(user._id);
 
       return token;
     }
+  }
+
+  public generateToken(userID: ObjectID): string {
+    let token = jwt.sign({ _id: userID }, this.jwtSecret);
+
+    return token;
   }
 
   public async changePassword(
@@ -268,9 +259,7 @@ export class UserService {
     await this.passRecoverCodesRepo.insertOne(code);
 
     // Send e-mail regarding password reset.
-    let url = `${hostname}${appPort}${apiVers}users/reset-password?token=${
-      code._id
-    }`;
+    let url = `${hostname}3000${apiVers}users/reset-password?token=${code._id}`;
     await this.mailer.send(
       user.email,
       "Password recovery",
