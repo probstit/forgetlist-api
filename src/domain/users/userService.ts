@@ -9,6 +9,8 @@ import { IRandomCode } from "./IRandomCode";
 import { RandomCode } from "./randomCode";
 import { hostname, apiVers } from "../../secret/secret";
 
+import mailTemplate from "../../mailer/mail-template";
+
 const EXCEPTIONAL = context("default");
 
 export class UserService {
@@ -67,45 +69,12 @@ export class UserService {
 
       // Send e-mail for user confirmation.
       let url = `${hostname}3000/users/confirm?code=${code._id}`;
+      const text = "Click on the button below to activate your account";
+      const buttonText = "Activate";
       await this.mailer.send(
         newUser.email,
         "Account confirmation",
-        `
-        <html>
-          <head>
-           <link href="https://fonts.googleapis.com/css?family=Montserrat|Pacifico&display=swap" rel="stylesheet">
-          </head>
-          <body>
-            <div style="
-              background-color: #234789;
-              font-family: Montserrat, Verdana, Tahoma, sans-serif;
-              text-align: center;
-              width: 100%;
-              height: 200px;
-              padding: 10px;
-              color: #fbf5f3;
-            ">
-              <h1 style="
-                font-family: Pacifico";
-                margin-top: 140px;
-                >Shopery</h1>
-              <h3 style="color: #fbf5f3; margin-top: 50px;">Click on the button below to activate your account.</h1>
-              <div style="
-                background-color: #fbf5f3;
-                font-family: Montserrat, Verdana, Tahoma, sans-serif;
-                margin: 10px auto;
-                border-style: none;
-                border: none;
-                display: block;
-                font-weight: bold;
-                width: 80px;
-                height: 25px;
-                border-radius: 20px;
-                padding: 2px;
-              "><a href="${url}" style="color: #234789; text-decoration: none; font-size: 13px;">Activate</a></div>
-            </div>
-          </body>
-        </html>`
+        mailTemplate(url, text, buttonText)
       );
 
       return newUser;
@@ -136,14 +105,12 @@ export class UserService {
     }
 
     let user = new User(userData);
-    let token;
     if (user.active) {
       throw EXCEPTIONAL.ConflictException(0, {
         message: "Account has already been activated"
       });
     } else {
       user.activate();
-      token = jwt.sign({ _id: user._id }, this.jwtSecret);
     }
 
     // Update confirmation info in the db.
@@ -259,11 +226,14 @@ export class UserService {
     await this.passRecoverCodesRepo.insertOne(code);
 
     // Send e-mail regarding password reset.
-    let url = `${hostname}3000${apiVers}users/reset-password?token=${code._id}`;
+    let url = `${hostname}3000/users/reset-password?token=${code._id}`;
+    const text = "Click on the button below to reset your password";
+    const buttonText = "Reset";
+
     await this.mailer.send(
       user.email,
       "Password recovery",
-      `Please follow this link ${url} to reset your password.`
+      mailTemplate(url, text, buttonText)
     );
   }
 
@@ -289,11 +259,18 @@ export class UserService {
 
     if (!userData) {
       throw EXCEPTIONAL.GenericException(0, {
-        message: "Something went wrong on our side. Plase contact support team."
+        message:
+          "Something went wrong on our side. Please contact support team."
       });
     }
 
     let user = new User(userData);
+
+    if (user.checkPassword(newPassword)) {
+      throw EXCEPTIONAL.ConflictException(0, {
+        message: "New password can't be the same as the old password"
+      });
+    }
 
     // Hash the new password and set it as the new one.
     user.hashPW(newPassword);
