@@ -93,7 +93,7 @@ export function userRoutes(
       try {
         let jwt = await userService.login(req.body);
         res.json({
-          accesToken: jwt
+          accessToken: jwt
         });
       } catch (err) {
         next(err);
