@@ -97,7 +97,10 @@ export function itemRoutes(
         let userID = (req as any).user._id;
 
         let userItems = await itemService.getPersonalItems(userID);
-
+        userItems.forEach(item => {
+          delete item.userID;
+          delete item.sharedWith;
+        });
         res.json({
           items: userItems
         });

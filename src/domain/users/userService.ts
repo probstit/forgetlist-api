@@ -299,6 +299,7 @@ export class UserService {
     }
 
     delete user.password;
+    delete user.active;
 
     return user;
   }
