@@ -111,7 +111,7 @@ export class ShareService {
       throw EXCEPTIONAL.NotFoundException(0, {
         message: "Item not found!"
       });
-    } 
+    }
 
     await this.itemsRepo.updateOne(
       {
@@ -223,7 +223,7 @@ export class ShareService {
   ): Promise<void> {
     const userFriends = [...userFriendsList.friendIDs];
     await this.itemsRepo.updateMany(
-      { userID },
+      { userID, isShared: false },
       { $set: { isShared: true, sharedWith: userFriends } }
     );
   }

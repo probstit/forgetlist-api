@@ -35,7 +35,7 @@ export function itemRoutes(
           name: req.body.name,
           quantity: req.body.quantity,
           isBought: false,
-          isShared: req.body.isShared,
+          isShared: false,
           sharedWith: []
         });
         /*

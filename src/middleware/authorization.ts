@@ -17,7 +17,6 @@ export function isAuthorized(
 
   if (typeof authHeader === "string") {
     let token = authHeader as string;
-
     if (!token) {
       return next(
         EXCEPTIONAL.UnauthorizedException(0, {

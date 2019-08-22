@@ -5,7 +5,7 @@ export interface IItem {
   userID: ObjectID;
   name: String;
   quantity: Number;
-  isBought: Boolean;
-  isShared: Boolean;
+  isBought: boolean;
+  isShared: boolean;
   sharedWith: ObjectID[];
 }

@@ -17,6 +17,7 @@ export class ItemService {
   public async addItem(_item: Item): Promise<IItem> {
     // Create a new instance of the item class.
     const item = new Item(_item);
+
     // Add it to the collection.
     await this.itemsRepo.insertOne(item);
 

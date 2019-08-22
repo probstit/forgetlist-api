@@ -6,8 +6,8 @@ export class Item implements IItem {
   userID: ObjectID;
   name: String;
   quantity: Number;
-  isBought: Boolean;
-  isShared: Boolean;
+  isBought: boolean;
+  isShared: boolean;
   sharedWith: ObjectID[];
 
   constructor(data: IItem) {
@@ -20,12 +20,16 @@ export class Item implements IItem {
     this.sharedWith = data.sharedWith;
   }
 
+  public disableSharing(): void {
+    this.isShared = false;
+  }
+
   public enableSharing(): void {
     this.isShared = true;
   }
 
-  public disableSharing(): void {
-    this.isShared = false;
+  public share(): void {
+    this.isShared = true;
   }
 
   public markBought(): void {

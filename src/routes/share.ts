@@ -91,7 +91,7 @@ export function shareRoutes(
     }
   );
 
-  // Route for enabling sharing an item with all friends.
+  // Route for sharing an item with all friends.
   router.put(
     "/items/share-with-all/:id",
     isAuthorized,
@@ -129,7 +129,7 @@ export function shareRoutes(
         await shareService.allowSharingForAll(userID, userFriendsList);
 
         res.json({
-          message: "All private items are now being shared."
+          message: "All locked items are now unlocked."
         });
       } catch (err) {
         next(err);
