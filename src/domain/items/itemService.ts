@@ -68,6 +68,35 @@ export class ItemService {
     return items;
   }
 
+  // Edit an item.
+  public async editItem(itemID: ObjectID): Promise<void> {
+    // Find the item.
+    let foundItem = await this.itemsRepo.findOne({
+      _id: new ObjectID(itemID)
+    });
+
+    if (!foundItem) {
+      throw EXCEPTIONAL.NotFoundException(0, {
+        message: "Item could not be found!"
+      });
+    }
+
+    let item = new Item(foundItem);
+
+    await this.itemsRepo.updateOne(
+      {
+        __id: new ObjectID(item._id)
+      },
+      {
+        $set: {
+          name: item.name,
+          quantity: item.quantity,
+          isShared: item.isShared
+        }
+      }
+    );
+  }
+
   // Mark an item as bought.
   public async markAsBought(
     itemID: ObjectID,

@@ -35,7 +35,7 @@ export function itemRoutes(
           name: req.body.name,
           quantity: req.body.quantity,
           isBought: false,
-          isShared: false,
+          isShared: req.body.isShared,
           sharedWith: []
         });
         /*
@@ -125,6 +125,28 @@ export function itemRoutes(
 
         res.json({
           items: sharedByOthers
+        });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // Route for editing an item.
+  router.put(
+    "items/edit-item/:id",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        const itemID = req.params.id;
+        await itemService.editItem(itemID);
+
+        res.json({
+          message: "Item successfully edited."
         });
       } catch (err) {
         next(err);
