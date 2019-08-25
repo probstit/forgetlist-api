@@ -85,6 +85,7 @@ export function itemRoutes(
   );
 
   // Route for getting the items owned by a user.
+  // Only items that are not bught yet.
   router.get(
     "/items/get-items",
     isAuthorized,

@@ -49,7 +49,7 @@ export class ItemService {
   // Get items owned by a user.
   public async getPersonalItems(userID: ObjectID): Promise<IItem[]> {
     const items = await this.itemsRepo
-      .find({ userID })
+      .find({ userID, isBought: false })
       .sort({ isShared: 1 })
       .toArray();
 
