@@ -69,7 +69,7 @@ export class ItemService {
   }
 
   // Edit an item.
-  public async editItem(itemID: ObjectID): Promise<void> {
+  public async editItem(itemID: ObjectID, itemData: IItem): Promise<void> {
     // Find the item.
     let foundItem = await this.itemsRepo.findOne({
       _id: new ObjectID(itemID)
@@ -81,17 +81,17 @@ export class ItemService {
       });
     }
 
-    let item = new Item(foundItem);
+    const item = new Item(itemData);
 
     await this.itemsRepo.updateOne(
       {
-        __id: new ObjectID(item._id)
+        _id: new ObjectID(item._id)
       },
       {
         $set: {
-          name: item.name,
-          quantity: item.quantity,
-          isShared: item.isShared
+          name: itemData.name,
+          quantity: itemData.quantity,
+          isShared: itemData.isShared
         }
       }
     );

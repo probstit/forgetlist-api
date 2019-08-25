@@ -97,10 +97,7 @@ export function itemRoutes(
         let userID = (req as any).user._id;
 
         let userItems = await itemService.getPersonalItems(userID);
-        userItems.forEach(item => {
-          delete item.userID;
-          delete item.sharedWith;
-        });
+
         res.json({
           items: userItems
         });
@@ -134,7 +131,7 @@ export function itemRoutes(
 
   // Route for editing an item.
   router.put(
-    "items/edit-item/:id",
+    "/items/edit-item/:id",
     isAuthorized,
     async (
       req: express.Request,
@@ -142,8 +139,9 @@ export function itemRoutes(
       next: express.NextFunction
     ) => {
       try {
+        const itemData = req.body.itemData;
         const itemID = req.params.id;
-        await itemService.editItem(itemID);
+        await itemService.editItem(itemID, itemData);
 
         res.json({
           message: "Item successfully edited."
