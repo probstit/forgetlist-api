@@ -47,9 +47,20 @@ export class ItemService {
   }
 
   // Get items owned by a user.
+  // Items that have not been bought yet.
   public async getPersonalItems(userID: ObjectID): Promise<IItem[]> {
     const items = await this.itemsRepo
       .find({ userID, isBought: false })
+      .sort({ isShared: 1 })
+      .toArray();
+
+    return items;
+  }
+
+  // Get items for history tab.
+  public async getHistoryItems(userID: ObjectID): Promise<IItem[]> {
+    const items = await this.itemsRepo
+      .find({ userID, isBought: true })
       .sort({ isShared: 1 })
       .toArray();
 

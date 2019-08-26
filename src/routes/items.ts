@@ -85,7 +85,7 @@ export function itemRoutes(
   );
 
   // Route for getting the items owned by a user.
-  // Only items that are not bught yet.
+  // Only items that are not bought yet.
   router.get(
     "/items/get-items",
     isAuthorized,
@@ -101,6 +101,29 @@ export function itemRoutes(
 
         res.json({
           items: userItems
+        });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // Route for fetching items for history tab.
+  router.get(
+    "/items/get-history",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        let userID = (req as any).user._id;
+
+        let historyItems = await itemService.getHistoryItems(userID);
+
+        res.json({
+          items: historyItems
         });
       } catch (err) {
         next(err);
