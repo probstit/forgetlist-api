@@ -101,7 +101,7 @@ export function userRoutes(
     }
   );
 
-  // Fetch user profile.
+  // Fetch "me" profile.
   router.get(
     "/users/me",
     isAuthorized,
@@ -112,6 +112,27 @@ export function userRoutes(
     ) => {
       try {
         let userID = (req as any).user._id;
+        let user = await userService.getUserById(userID);
+        res.json({
+          user
+        });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // Fetch a user data
+  router.get(
+    "/users/user/:id",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        let userID = new ObjectID(req.params.id);
         let user = await userService.getUserById(userID);
         res.json({
           user
