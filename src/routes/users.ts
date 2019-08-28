@@ -135,7 +135,7 @@ export function userRoutes(
         let userID = new ObjectID(req.params.id);
         let user = await userService.getUserById(userID);
         res.json({
-          user
+          ...user
         });
       } catch (err) {
         next(err);
@@ -205,6 +205,29 @@ export function userRoutes(
             message: "Password has been successfully updated."
           })
           .end();
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // Search users by e-mail.
+  // Used when searching for new friends.
+  router.get(
+    "/users/search",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        const userEmail = req.body.email;
+        const user = await userService.searchUser(userEmail);
+
+        res.json({
+          user
+        });
       } catch (err) {
         next(err);
       }

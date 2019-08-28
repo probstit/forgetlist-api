@@ -41,7 +41,7 @@ export class FriendListService {
     if (!foundList) {
       // Throw error if the user is not found.
       throw EXCEPTIONAL.GenericException(0, {
-        message: "Something went wrong on our side. Plase contact support team."
+        message: "An error occured."
       });
     } else {
       // Add the friend into the user's friend list.
@@ -65,26 +65,20 @@ export class FriendListService {
   ): Promise<void> {
     // Find user's friend list.
     let foundList = await this.friendsListRepo.findOne({
-      userID: userID
+      userID
     });
 
     if (!foundList) {
       throw EXCEPTIONAL.GenericException(0, {
-        message: "Something went wrong on our side. Please contact support team."
+        message: "An error occured."
       });
-    } else {
-      // Update user's friend list.
-      await this.friendsListRepo.updateOne(
-        {
-          userID
-        },
-        {
-          $pull: {
-            friendIDs: friendID
-          }
-        }
-      );
     }
+
+    // Update user's friend list.
+    await this.friendsListRepo.updateOne(
+      { userID },
+      { $pull: { friendIDs: friendID } }
+    );
   }
 
   // Fetch the friend list for a user.

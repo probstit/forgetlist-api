@@ -52,7 +52,7 @@ export function socialRoutes(
 
   // Route for removing a friend.
   router.delete(
-    "/social/remove-friend",
+    "/social/remove-friend/:id",
     isAuthorized,
     async (
       req: express.Request,
@@ -60,21 +60,16 @@ export function socialRoutes(
       next: express.NextFunction
     ) => {
       try {
-        let userID: ObjectID = (req as any).user._id;
-        let friendEmail: string = req.body.email;
-        let friend: IUser = await usersRepo.findOne({
-          email: friendEmail
-        });
+        let userID = (req as any).user._id;
+        let friendID = new ObjectID(req.params.id);
 
-        await friendListService.removeUserFromFriendList(userID, friend._id);
-        await friendListService.removeUserFromFriendList(friend._id, userID);
+        await friendListService.removeUserFromFriendList(userID, friendID);
+        await friendListService.removeUserFromFriendList(friendID, userID);
 
-        await shareService.hideUserItems(userID, friend._id);
-        await shareService.hideUserItems(friend._id, userID);
+        await shareService.hideUserItems(userID, friendID);
+        await shareService.hideUserItems(friendID, userID);
 
-        res.json({
-          message: "Successfully removed friends."
-        });
+        res.end();
       } catch (err) {
         next(err);
       }

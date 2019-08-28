@@ -310,4 +310,20 @@ export class UserService {
 
     return await this.usersRepo.find({ $text: { $search: term } }).toArray();
   }
+
+  // Search user by email
+  public async searchUser(email: string): Promise<IUser> {
+    const user = await this.usersRepo.findOne({ email });
+
+    if (!user) {
+      throw EXCEPTIONAL.NotFoundException(0, {
+        message: "No results!"
+      });
+    }
+
+    delete user.password;
+    delete user.active;
+
+    return user;
+  }
 }
