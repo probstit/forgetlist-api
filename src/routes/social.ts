@@ -41,9 +41,7 @@ export function socialRoutes(
         await shareService.shareUserItems(userID, friend._id);
         await shareService.shareUserItems(friend._id, userID);
 
-        res.json({
-          message: "Successfully added friends."
-        });
+        res.end();
       } catch (err) {
         next(err);
       }
@@ -89,13 +87,33 @@ export function socialRoutes(
         let userID = (req as any).user._id;
         let friendList = await friendListService.getFriendList(userID);
 
-        if (!friendList) {
-          res.status(404).json({
-            message: "There has been an error on our side."
-          });
-        } else {
-          res.json({ friendList });
-        }
+        res.json({ friendList });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
+  // Checks if a user is already a friend
+  router.get(
+    "/social/is-friend/:id",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        const userID = (req as any).user._id;
+        const friendID = new ObjectID(req.params.id);
+        const isAlreadyFriend = await friendListService.checkIsFriend(
+          userID,
+          friendID
+        );
+
+        res.json({
+          isAlreadyFriend
+        });
       } catch (err) {
         next(err);
       }

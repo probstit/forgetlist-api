@@ -95,4 +95,28 @@ export class FriendListService {
 
     return foundList;
   }
+
+  public async checkIsFriend(
+    userID: ObjectID,
+    friendID: ObjectID
+  ): Promise<boolean> {
+    let foundList = await this.friendsListRepo.findOne({
+      userID
+    });
+
+    if (!foundList) {
+      throw EXCEPTIONAL.NotFoundException(0, {
+        message: "An error occured."
+      });
+    }
+
+    let isAlreadyFriend: boolean = false;
+    foundList.friendIDs.forEach(id =>
+      id.toString() === friendID.toString()
+        ? (isAlreadyFriend = true)
+        : (isAlreadyFriend = false)
+    );
+
+    return isAlreadyFriend;
+  }
 }

@@ -222,7 +222,7 @@ export function userRoutes(
       next: express.NextFunction
     ) => {
       try {
-        const userEmail = req.body.email;
+        const userEmail = req.query.email;
         const user = await userService.searchUser(userEmail);
 
         res.json({
