@@ -71,10 +71,16 @@ export class ItemService {
   public async getItemsSharedByOthers(userID: ObjectID): Promise<IItem[]> {
     const items = await this.itemsRepo
       .find({
+        isBought: false,
         sharedWith: { $in: [userID] }
       })
       .sort({ userID: -1 })
       .toArray();
+
+    items.forEach(item => {
+      delete item.sharedWith;
+      delete item.isShared;
+    });
 
     return items;
   }
