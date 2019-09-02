@@ -145,7 +145,7 @@ export function itemRoutes(
         let sharedByOthers = await itemService.getItemsSharedByOthers(userID);
 
         res.json({
-          ...sharedByOthers
+          items: sharedByOthers
         });
       } catch (err) {
         next(err);
