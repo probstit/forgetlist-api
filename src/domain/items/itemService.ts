@@ -4,6 +4,8 @@ import { Collection, ObjectID } from "mongodb";
 import { IItem } from "./IItem";
 import { Item } from "./item";
 
+import { ISharedItems } from "./ISharedItems";
+
 const EXCEPTIONAL = context("default");
 
 export class ItemService {
@@ -68,7 +70,12 @@ export class ItemService {
   }
 
   // Get items shared by other users.
-  public async getItemsSharedByOthers(userID: ObjectID): Promise<IItem[]> {
+  public async getItemsSharedByOthers(
+    userID: ObjectID
+  ): Promise<ISharedItems[]> {
+    // new array to store items for each user
+    const sortedItems = [];
+    // fetch items from db where 'userid' has access to
     const items = await this.itemsRepo
       .find({
         isBought: false,
@@ -77,12 +84,28 @@ export class ItemService {
       .sort({ userID: -1 })
       .toArray();
 
+    // Good
+    // create instances for each user and store them into sortedItems
+    let id = new ObjectID();
     items.forEach(item => {
-      delete item.sharedWith;
-      delete item.isShared;
+      if (id.toString() !== item.userID.toString()) {
+        id = item.userID;
+        sortedItems.push({
+          userID: id,
+          items: []
+        });
+      }
     });
-
-    return items;
+    // fetch items for each user
+    sortedItems.forEach(user => {
+      items.forEach(item => {
+        if (item.userID.toString() === user.userID.toString()) {
+          user.items.push(item);
+        }
+      });
+    });
+    // return the newly created list
+    return sortedItems;
   }
 
   // Edit an item.
