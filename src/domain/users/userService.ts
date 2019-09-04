@@ -294,7 +294,7 @@ export class UserService {
 
     if (!user) {
       throw EXCEPTIONAL.NotFoundException(0, {
-        message: "No user with this id in the database"
+        message: "Could not find user."
       });
     }
 
@@ -325,5 +325,17 @@ export class UserService {
     delete user.active;
 
     return user;
+  }
+
+  // Finds user data from item.sharedWith ids
+  public async sharedWithUsers(userIDs: ObjectID[]): Promise<IUser[]> {
+    const users: IUser[] = await Promise.all(
+      userIDs.map(async id => {
+        const result = await this.getUserById(new ObjectID(id));
+        return result;
+      })
+    );
+
+    return users;
   }
 }

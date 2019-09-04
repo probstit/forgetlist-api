@@ -234,5 +234,26 @@ export function userRoutes(
     }
   );
 
+  router.get(
+    "/users/shared-with",
+    isAuthorized,
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      try {
+        const userIDs = req.query.users;
+        const users = await userService.sharedWithUsers(userIDs);
+
+        res.json({
+          users
+        });
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
+
   return router;
 }
