@@ -133,7 +133,7 @@ export class ShareService {
     itemID: ObjectID,
     userID: ObjectID,
     userFriendsList: FriendList
-  ): Promise<void> {
+  ): Promise<ObjectID[]> {
     // Find the item.
     let foundItem = await this.itemsRepo.findOne({
       _id: new ObjectID(itemID),
@@ -158,6 +158,8 @@ export class ShareService {
       },
       { $set: { isShared: item.isShared, sharedWith: item.sharedWith } }
     );
+
+    return item.sharedWith;
   }
 
   /* Set an item as private. [disable sharing]
@@ -206,12 +208,14 @@ export class ShareService {
   public async shareListWithAllFriends(
     userID: ObjectID,
     userFriendsList: FriendList
-  ): Promise<void> {
+  ): Promise<ObjectID[]> {
     const userFriends = [...userFriendsList.friendIDs];
     await this.itemsRepo.updateMany(
       { userID, isShared: false },
       { $set: { isShared: true, sharedWith: userFriends } }
     );
+
+    return userFriends;
   }
   /* Hides all items from all the users.
    * Items will be set as private.

@@ -103,10 +103,14 @@ export function shareRoutes(
       try {
         const userID = (req as any).user._id;
         const userFriendsList = await friendListService.getFriendList(userID);
-        await shareService.shareItem(req.params.id, userID, userFriendsList);
+        const sharedWith = await shareService.shareItem(
+          req.params.id,
+          userID,
+          userFriendsList
+        );
 
         res.json({
-          message: "Enabled sharing!"
+          sharedWith
         });
       } catch (err) {
         next(err);
@@ -126,10 +130,13 @@ export function shareRoutes(
       try {
         let userID = (req as any).user._id;
         const userFriendsList = await friendListService.getFriendList(userID);
-        await shareService.shareListWithAllFriends(userID, userFriendsList);
+        const userFriends = await shareService.shareListWithAllFriends(
+          userID,
+          userFriendsList
+        );
 
         res.json({
-          message: "Your list is now being shared with your friends."
+          userFriends
         });
       } catch (err) {
         next(err);
