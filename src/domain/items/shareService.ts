@@ -96,8 +96,8 @@ export class ShareService {
     );
   }
 
-  // Hides an item from one or more specific users.
-  public async hideItemFromSome(
+  // Hides an item from one specific user.
+  public async hideItemFromUser(
     itemID: ObjectID,
     userID: ObjectID,
     friendID: ObjectID
@@ -198,20 +198,6 @@ export class ShareService {
     );
 
     return removedAccess;
-  }
-
-  /* This will set all the private items as public.
-   * Friends will be able to see these items afterwards.
-   */
-  public async allowSharingForAll(
-    userID: ObjectID,
-    userFriendsList: FriendList
-  ): Promise<void> {
-    const userFriends = [...userFriendsList.friendIDs];
-    await this.itemsRepo.updateMany(
-      { userID, isShared: false },
-      { $set: { isShared: true, sharedWith: userFriends } }
-    );
   }
 
   /* This will share all the items, private or public

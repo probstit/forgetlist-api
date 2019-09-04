@@ -7,7 +7,7 @@ import { IUser } from "./IUser";
 import { User } from "./user";
 import { IRandomCode } from "./IRandomCode";
 import { RandomCode } from "./randomCode";
-import { hostname, apiVers } from "../../secret/secret";
+import { hostname } from "../../secret/secret";
 
 import mailTemplate from "../../mailer/mail-template";
 

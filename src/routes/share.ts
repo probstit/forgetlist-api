@@ -114,29 +114,6 @@ export function shareRoutes(
     }
   );
 
-  // Route for sharing all private items.
-  router.put(
-    "/items/enable-share-all",
-    isAuthorized,
-    async (
-      req: express.Request,
-      res: express.Response,
-      next: express.NextFunction
-    ) => {
-      try {
-        let userID = (req as any).user._id;
-        const userFriendsList = await friendListService.getFriendList(userID);
-        await shareService.allowSharingForAll(userID, userFriendsList);
-
-        res.json({
-          message: "All locked items are now unlocked."
-        });
-      } catch (err) {
-        next(err);
-      }
-    }
-  );
-
   // Route for sharing the whole list with everyone.
   router.put(
     "/items/share-list",
@@ -205,7 +182,7 @@ export function shareRoutes(
 
   // Route for hiding an item from a user.
   router.put(
-    "/items/hide-from-some/:id",
+    "/items/hide-from-user/:id",
     isAuthorized,
     async (
       req: express.Request,
@@ -214,33 +191,25 @@ export function shareRoutes(
     ) => {
       try {
         let userID = (req as any).user._id;
-        let friendsEmail: string[] = req.body.emails;
+        let friendEmail: string = req.body.email;
 
-        friendsEmail.forEach(async (email: string) => {
-          try {
-            let foundFriend = await usersRepo.findOne({
-              email
-            });
-
-            if (!foundFriend) {
-              throw EXCEPTIONAL.NotFoundException(0, {
-                message: "Friend not found!"
-              });
-            }
-
-            await shareService.hideItemFromSome(
-              req.params.id,
-              userID,
-              foundFriend._id
-            );
-          } catch (err) {
-            next(err);
-          }
+        let foundFriend = await usersRepo.findOne({
+          email: friendEmail
         });
 
-        res.json({
-          message: "Item successfully hidden."
-        });
+        if (!foundFriend) {
+          throw EXCEPTIONAL.NotFoundException(0, {
+            message: "Friend not found!"
+          });
+        }
+
+        await shareService.hideItemFromUser(
+          req.params.id,
+          userID,
+          foundFriend._id
+        );
+
+        res.end();
       } catch (err) {
         next(err);
       }

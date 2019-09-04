@@ -9,6 +9,8 @@ import { FriendList } from "../domain/friends/friendList";
 import { FriendListService } from "../domain/friends/friendListService";
 import { jwtSecret } from "../secret/secret";
 import { Mailer } from "../mailer/mailer";
+import { context } from "exceptional.js";
+const EXCEPTIONAL = context("default");
 
 export function userRoutes(
   usersRepo: Collection<IUser>,
@@ -244,6 +246,12 @@ export function userRoutes(
     ) => {
       try {
         const userIDs = req.query.users;
+
+        if (!userIDs) {
+          throw EXCEPTIONAL.GenericException(0, {
+            message: "User IDs is empty"
+          });
+        }
         const users = await userService.sharedWithUsers(userIDs);
 
         res.json({
