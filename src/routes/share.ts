@@ -22,9 +22,9 @@ export function shareRoutes(
     friendsRepo
   );
 
-  // Route for sharing a specific item, with one or more friends.
+  // Route for sharing a specific item with one friend.
   router.put(
-    "/items/share-with-some/:id",
+    "/items/share-with-user/:id",
     isAuthorized,
     async (
       req: express.Request,
@@ -35,52 +35,46 @@ export function shareRoutes(
         // Find the friend.
         let userID = (req as any).user._id;
 
-        let friendEmails: string[] = req.body.emails;
-        friendEmails.forEach(async (email: string) => {
-          try {
-            // Look for the friend in users repo to fetch the _id.
-            let foundFriend = await usersRepo.findOne({
-              email
-            });
+        let friendEmail: string[] = req.body.email;
 
-            if (!foundFriend) {
-              throw EXCEPTIONAL.NotFoundException(0, {
-                message: "Friend not found."
-              });
-            }
-            // Find user's friend list.
-            let foundFriendList = await friendsRepo.findOne({
-              userID
-            });
+        let foundFriend = await usersRepo.findOne({
+          email: friendEmail
+        });
 
-            if (!foundFriendList) {
-              throw EXCEPTIONAL.NotFoundException(0, {
-                message: "Friend list not found."
-              });
-            }
-            // Check if the users are friends.
-            let isFriend = false;
-            foundFriendList.friendIDs.forEach(friendID => {
-              if (friendID.toString() === foundFriend._id.toString()) {
-                isFriend = true;
-              }
-            });
-            // Only allow sharing the item if the users are friends.
-            if (isFriend) {
-              await shareService.shareWithSome(
-                req.params.id,
-                foundFriend._id,
-                userID
-              );
-            } else {
-              throw EXCEPTIONAL.DomainException(0, {
-                message: "Users are not friends"
-              });
-            }
-          } catch (err) {
-            next(err);
+        if (!foundFriend) {
+          throw EXCEPTIONAL.NotFoundException(0, {
+            message: "Friend not found."
+          });
+        }
+        // Find user's friend list.
+        let foundFriendList = await friendsRepo.findOne({
+          userID
+        });
+
+        if (!foundFriendList) {
+          throw EXCEPTIONAL.NotFoundException(0, {
+            message: "Friend list not found."
+          });
+        }
+        // Check if the users are friends.
+        let isFriend = false;
+        foundFriendList.friendIDs.forEach(friendID => {
+          if (friendID.toString() === foundFriend._id.toString()) {
+            isFriend = true;
           }
         });
+        // Only allow sharing the item if the users are friends.
+        if (isFriend) {
+          await shareService.shareWithUser(
+            req.params.id,
+            foundFriend._id,
+            userID
+          );
+        } else {
+          throw EXCEPTIONAL.DomainException(0, {
+            message: "Users are not friends"
+          });
+        }
 
         res.json({
           message: "Item successfully shared!"

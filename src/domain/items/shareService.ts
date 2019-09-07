@@ -53,7 +53,7 @@ export class ShareService {
   }
 
   // Share one item with one or more selected users (has to be friends).
-  public async shareWithSome(
+  public async shareWithUser(
     itemID: ObjectID,
     friendID: ObjectID,
     userID: ObjectID
