@@ -21,7 +21,7 @@
     "exceptional.js": "^0.6.2",
     "express": "^4.17.1",
     "gulp-copy": "^4.0.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "mongodb": "^3.2.7",
     "nodemailer": "^6.2.1",
     "typescript": "^3.5.2"
